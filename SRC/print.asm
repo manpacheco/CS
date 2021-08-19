@@ -32,6 +32,11 @@ Borde_inferior:			DB 150
 Esquina_inferior_der:	DB 151
 Menu:					DB AT, 1, 0, PAPER, 7, INK, 2, " G", INK, 0, "ame  ", INK, 2, "O", INK, 0, "ptions  ", INK, 2, "A", INK, 0, "cme  ", INK, 2, "D", INK, 0, "ossiers ",255
 City_print_config:		DB AT, 4, 0, PAPER, 0, INK, 7, 255
+
+Window_x_inicial:		DB 12	; La posición X de la esquina superior izquierda
+Window_y_inicial:		DB 12	; La posición Y de la esquina superior izquierda
+Window_x_final:			DB 0	; La posición X de la esquina inferior derecha
+Window_y_final:			DB 0	; La posición Y de la esquina inferior derecha
 ;City_print_config:		DB AT, 4, 0, PAPER, 7, INK, 0, 255
 ;Prueba_UDG:				DB 144,145,145,145,145,146, 255
 
@@ -80,6 +85,7 @@ Pinta_pantalla_juego:
 CALL ROM_CLS            ; Clear screen and open Channel 2 (Screen)
 LD DE, Menu
 CALL Print_255_Terminated
+call Pinta_recuadro
 Call Dibuja_Linea
 LD DE, City_print_config
 CALL Print_255_Terminated
@@ -88,7 +94,30 @@ CALL Print_city_text
 ;CALL Print_255_Terminated
 ret
 
+
 Pinta_recuadro:
+LD A, PAPER
+RST 0x10
+LD A, 7
+RST 0x10
+LD A, INK
+RST 0x10
+LD A, 0
+RST 0x10
+LD A, AT
+RST 0x10
+LD HL, Window_y_inicial
+LD A, (HL)
+RST 0x10
+LD HL, Window_x_inicial
+LD A, (HL)
+RST 0x10
+LD A, Esquina_superior_izq
+RST 0x10
+RET
+
+
+
 
 
 
