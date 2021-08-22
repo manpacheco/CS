@@ -32,7 +32,7 @@ Hour_print_config:			DB AT, 7, 1, 255
 
 Window_x_inicial:			DB 0	; La posición X de la esquina superior izquierda
 Window_y_inicial:			DB 3	; La posición Y de la esquina superior izquierda
-Window_x_final_m_1:			DB 14	; La posición X de la esquina inferior derecha
+Window_x_final_m_1:			DB 15	; La posición X de la esquina inferior derecha
 Window_y_final_m_1:			DB 8	; La posición Y de la esquina inferior derecha
 Caracter_relleno:			DB 143	; El caracter para rellenar el recuadro
 
@@ -44,13 +44,50 @@ Pinta_pantalla_juego:
 CALL ROM_CLS            ; Clear screen and open Channel 2 (Screen)
 LD DE, Menu
 CALL Print_255_Terminated
-;call Pinta_recuadro
+call Pinta_recuadro
 
 ld hl, Window_y_inicial
 ld (hl),10					; La posición Y de la esquina superior izquierda
 ld hl, Window_y_final_m_1
 ld (hl),21					; La posición Y de la esquina inferior derecha
 call Pinta_recuadro
+
+;;;; Panel derecho
+ld hl, Window_y_inicial
+ld (hl),3					
+ld hl, Window_y_final_m_1
+ld (hl),17
+ld hl, Window_x_inicial
+ld (hl),16					
+ld hl, Window_x_final_m_1
+ld (hl),31					
+call Pinta_recuadro
+
+;;;; Botones
+ld hl, Caracter_relleno
+ld (hl),32
+ld hl, Window_y_inicial
+ld (hl),19					
+ld hl, Window_y_final_m_1
+ld (hl),20
+ld hl, Window_x_inicial
+ld (hl),17					
+ld hl, Window_x_final_m_1
+ld (hl),21					
+call Pinta_recuadro
+
+ld hl, Window_x_inicial
+ld (hl),22					
+ld hl, Window_x_final_m_1
+ld (hl),26					
+call Pinta_recuadro
+
+ld hl, Window_x_inicial
+ld (hl),27					
+ld hl, Window_x_final_m_1
+ld (hl),31					
+call Pinta_recuadro
+
 
 LD DE, City_print_config
 call Print_255_Terminated
@@ -70,18 +107,14 @@ ret
 ;#####################################################################################################
 Pinta_recuadro:
 
-ld hl, Window_y_final_m_1
-ld D, (hl)
-ld hl, Window_x_final_m_1
-ld E, (hl)
 LD HL, Window_y_inicial
 LD B, (HL)
 LD HL, Window_x_inicial
 LD C, (HL)
-
-
-;;;; CORREGIR LAS REFERENCIAS A LOS REGISTROS B, C, D y E
-sorry :(
+ld hl, Window_y_final_m_1
+ld D, (hl)
+ld hl, Window_x_final_m_1
+ld E, (hl)
 
 
 LD A, PAPER
@@ -97,24 +130,24 @@ RST 0x10
 LD A, AT
 RST 0x10
 
-ld a,c
+LD A,B
 RST 0x10
 
-ld a,b
+LD A,C
 RST 0x10
 
 ;; PRIMERA FILA
 LD A, ESQUINA_SUPERIOR_IZQ
 RST 0x10
-inc b
+INC C
 
 Pinta_recuadro_borde_superior:
 LD A, BORDE_SUPERIOR
 RST 0x10
-inc b
-ld a, b
-cp d
-jr nz, Pinta_recuadro_borde_superior
+INC C
+LD A, C
+CP E
+JR NZ, Pinta_recuadro_borde_superior
 
 LD A, ESQUINA_SUPERIOR_DER
 RST 0x10
@@ -122,102 +155,104 @@ RST 0x10
 ;;; FILAS DE ENMEDIO
 Pinta_recuadro_fila_enmedio:
 
-INC c
-LD HL, Window_x_inicial
-LD b, (HL)
-
-LD A, AT
-RST 0x10
-
-ld a,c
-RST 0x10
-
-ld a,b
-RST 0x10
-
-
-
-LD A, BORDE_IZQ
-RST 0x10
-inc c
-
-Pinta_recuadro_relleno:
-ld hl, Caracter_relleno
-LD A, (hl)
-RST 0x10
-inc c
-ld a, c
-cp d
-jr nz, Pinta_recuadro_relleno
-
-LD A, BORDE_DER
-RST 0x10
-
-ld a, b
-cp e
-jr nz, Pinta_recuadro_fila_enmedio
-
-ld a,13
-RST 0x10
-
-
-;; ÚLTIMA FILA
-
-;LD A, 38
-;RST 0x10
-;LD A, AT
-;RST 0x10
-;LD A, 0
-;RST 0x10
-;LD A, 0
-;RST 0x10
-;LD A, 34
-;RST 0x10
-
 INC B
-ld a, b
-cp 22
-jr c, Pinta_recuadro_no_cambiar_canal
-LD A, 1
-CALL ROM_OPEN_CHANNEL
-LD b,0
-LD A, ESQUINA_INFERIOR_IZQ
-RST 0x10
-
-Pinta_recuadro_no_cambiar_canal:
 LD HL, Window_x_inicial
 LD C, (HL)
 
 LD A, AT
 RST 0x10
 
-ld a,b
+LD A,B
 RST 0x10
 
-ld a,c
+LD A,C
 RST 0x10
+
+LD A, BORDE_IZQ
+RST 0x10
+INC C
+
+Pinta_recuadro_relleno:
+LD HL, Caracter_relleno
+LD A, (HL)
+RST 0x10
+INC C
+LD A, C
+CP E
+JR NZ, Pinta_recuadro_relleno
+
+LD A, BORDE_DER
+RST 0x10
+
+LD A, B
+CP D
+JR NZ, Pinta_recuadro_fila_enmedio
+
+
+;LD A,13
+;RST 0X10
+
+;; ÚLTIMA FILA
+
+;LD HL, Window_x_inicial
+;LD C, (HL)
+
+INC B
+LD A, B
+CP 22
+JR C, Pinta_recuadro_no_cambiar_canal
+
+LD A, 1
+PUSH BC
+PUSH DE
+CALL ROM_OPEN_CHANNEL
+POP DE
+POP BC
+LD B,0
+LD C,0
+LD HL, Window_y_final_m_1
+LD A, (HL)
+SUB 21
+LD (HL),A
+
+jr Pinta_recuadro_imprimir_fila_inferior
+
+Pinta_recuadro_no_cambiar_canal:
+LD HL, Window_x_inicial
+LD C, (HL)
+
+
+Pinta_recuadro_imprimir_fila_inferior:
+
+LD A, AT
+RST 0x10
+
+LD A,B
+RST 0x10
+
+LD A,C
+RST 0x10
+
 
 LD A, ESQUINA_INFERIOR_IZQ
 RST 0x10
-inc c
+INC C
 
 Pinta_recuadro_borde_inferior:
 LD A, BORDE_INFERIOR
 RST 0x10
-inc c
-ld a, c
-cp d ; línea 88f6
-jr nz, Pinta_recuadro_borde_inferior
-
-atras:
-jr atras
+INC C
+LD A, C
+CP E ; línea 88f6
+JR NZ, Pinta_recuadro_borde_inferior
 
 LD A, ESQUINA_INFERIOR_DER
 RST 0x10
 
+
+
 LD A, 2
 CALL ROM_OPEN_CHANNEL
-ld c,0
 
 RET
 
