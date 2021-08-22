@@ -35,6 +35,8 @@ call dzx0_standard
 ; Print the string TEXT2 using my zero-terminated string print routine
 ;
 CALL Pinta_pantalla_juego
+end_loop:
+jr end_loop
 ret
 
 Pantalla:
