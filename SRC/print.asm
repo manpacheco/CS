@@ -63,31 +63,36 @@ ld hl, Window_x_final_m_1
 ld (hl),31					
 call Pinta_recuadro
 
+
 ;;;; Botones
 ld hl, Caracter_relleno
 ld (hl),32
 ld hl, Window_y_inicial
 ld (hl),19					
+
 ld hl, Window_y_final_m_1
-ld (hl),20
+ld (hl),21
 ld hl, Window_x_inicial
 ld (hl),17					
 ld hl, Window_x_final_m_1
-ld (hl),21					
+ld (hl),21
 call Pinta_recuadro
 
+ld hl, Window_y_final_m_1
+ld (hl),21
 ld hl, Window_x_inicial
 ld (hl),22					
 ld hl, Window_x_final_m_1
 ld (hl),26					
 call Pinta_recuadro
 
+ld hl, Window_y_final_m_1
+ld (hl),21
 ld hl, Window_x_inicial
 ld (hl),27					
 ld hl, Window_x_final_m_1
 ld (hl),31					
 call Pinta_recuadro
-
 
 LD DE, City_print_config
 call Print_255_Terminated
@@ -194,8 +199,8 @@ JR NZ, Pinta_recuadro_fila_enmedio
 
 ;; ÚLTIMA FILA
 
-;LD HL, Window_x_inicial
-;LD C, (HL)
+LD HL, Window_x_inicial
+LD C, (HL)
 
 INC B
 LD A, B
@@ -209,7 +214,7 @@ CALL ROM_OPEN_CHANNEL
 POP DE
 POP BC
 LD B,0
-LD C,0
+;LD C,0
 LD HL, Window_y_final_m_1
 LD A, (HL)
 SUB 21
