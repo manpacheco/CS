@@ -207,6 +207,8 @@ LD A, B
 CP 22
 JR C, Pinta_recuadro_no_cambiar_canal
 
+
+
 LD A, 1
 PUSH BC
 PUSH DE
@@ -219,6 +221,38 @@ LD HL, Window_y_final_m_1
 LD A, (HL)
 SUB 21
 LD (HL),A
+
+
+
+; fila extra en CANAL 1
+LD A, AT
+RST 0x10
+
+LD A,0
+RST 0x10
+
+LD A,C
+RST 0x10
+
+LD A, BORDE_IZQ
+RST 0x10
+INC C
+
+Pinta_recuadro_relleno_extra:
+LD HL, Caracter_relleno
+LD A, (HL)
+RST 0x10
+INC C
+LD A, C
+CP E
+JR NZ, Pinta_recuadro_relleno_extra
+
+LD A, BORDE_DER
+RST 0x10
+inc B
+
+LD HL, Window_x_inicial
+LD C, (HL)
 
 jr Pinta_recuadro_imprimir_fila_inferior
 
