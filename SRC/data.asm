@@ -12,20 +12,21 @@ Hobby: db "tennis","music","mt. climbing","skydiving","swimming","croquet"
 Hair: db "brown", "blond", "red", "black"
 Feature: db "limps", "ring", "tatto", "scar", "jewelry"
 Vehicle: db "convertible", "limousine", "race car", "motorcycle"
-Weekdays: db "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"
+Weekdays: db "Mon", 255,"Tue",255,"Wed",255,"Thu",255,"Fri",255,"Sat",255,"Sun",255
 
 ;Estado actual
 Suspect: db 99
-CurrentCity: db 31 ; rango [1,31]
+CurrentCity: db 1 ; rango [1,31]
 CurrentCountry: db 28
-CurrentWeekday: db 3
+CurrentWeekday: db 3 ; EMPIEZA EN 1
+CurrentHour: db "09:00",255
 
 ;1234567890123412345678901234123456789012341234567890123412345678901234123456789012341234567890123412345678901234123456789012341234567890123412345678901234123456789012341234567890123412345678901234
 ;Argentina is South America's second-largest nation, after Brazil. Its terrain ranges from tropical forests in the north to cold and barren Tierra del Fuego in the south.
 ;Budapest, the capital of Hungary, was once two cities - Buda and Pest - separated by the Danube River.
 ;Rio de Janeiro is Brazil's second-largest city. Famous Sugar Loaf peak overlooks its beautiful natural harbor.
 ;Colombo, with a population of more than 1.2 million, is the capital and principal city of Sri Lanka, an island nation located off the southeast coast of India.
-;Peking is the capital of the People's Republic of Chine. One of this nation's most famous landmarks is the Great Wall.
+;Peking is the capital of the People's Republic of China. One of this nation's most famous landmarks is the Great Wall.
 ;Until the 15th century, Mali was part of the great Mali Empire. Its ancient city of Timbuktu was an important center of Islamic study.
 ;Hungary, with an area slightly smaller than Indiana, is bordered by Czechoslovakia, Austria, Yugoslavia, Romania and the Soviet Union.
 
@@ -38,3 +39,6 @@ CurrentWeekday: db 3
 ;32/3 = 10.66
 
 ; ventana derecha 14x14 caracteres ancho
+
+; comentarios ciudades 120 caracteres * 6 = 720 bytes
+; libre: 2 * 8 * 24

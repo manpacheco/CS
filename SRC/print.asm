@@ -26,9 +26,21 @@ BORDE_DER					EQU 148
 ESQUINA_INFERIOR_IZQ		EQU 149
 BORDE_INFERIOR				EQU 150
 ESQUINA_INFERIOR_DER		EQU 151
+RIO_JAN						EQU 6
+TAM_WEEKDAYS				EQU 4
 Menu:						DB AT, 1, 0, PAPER, 7, INK, 2, " G", INK, 0, "ame  ", INK, 2, "O", INK, 0, "ptions  ", INK, 2, "A", INK, 0, "cme  ", INK, 2, "D", INK, 0, "ossiers ",255
 City_print_config:			DB AT, 5, 1, PAPER, 0, INK, 7, 255
 Hour_print_config:			DB AT, 7, 1, 255
+Button_depart_1_3			DB AT, 20, 18, 152, 153, 154, 255
+Button_depart_2_3			DB AT, 21, 19, 155, 255
+Button_depart_3_3			DB AT, 0, 18, 156, 157, 158, 255
+Button_lupa_1_3				DB AT, 20, 24, 159, 160, 255
+Button_lupa_2_3				DB AT, 21, 23, 161, 162, 123, 255
+Button_lupa_3_3				DB AT, 0, 23, 124, 125, 126, 255
+Button_crime_1_3			DB AT, 20, 28, 35, 36, 37, 255
+Button_crime_2_3			DB AT, 21, 28, 38, 60, 61, 255
+Button_crime_3_3			DB AT, 0, 28, 62, 63, 96, 255
+
 
 Window_x_inicial:			DB 0	; La posición X de la esquina superior izquierda
 Window_y_inicial:			DB 3	; La posición Y de la esquina superior izquierda
@@ -64,7 +76,7 @@ ld (hl),31
 call Pinta_recuadro
 
 
-;;;; Botones
+;;;; Boton 1
 ld hl, Caracter_relleno
 ld (hl),32
 ld hl, Window_y_inicial
@@ -78,6 +90,27 @@ ld hl, Window_x_final_m_1
 ld (hl),21
 call Pinta_recuadro
 
+LD DE, Button_depart_1_3
+CALL Print_255_Terminated
+
+LD DE, Button_depart_2_3
+CALL Print_255_Terminated
+
+LD A, 1
+PUSH BC
+PUSH DE
+CALL ROM_OPEN_CHANNEL
+POP DE
+POP BC
+
+
+LD DE, Button_depart_3_3
+CALL Print_255_Terminated
+
+LD A, 2
+CALL ROM_OPEN_CHANNEL
+
+;;;; Boton 2
 ld hl, Window_y_final_m_1
 ld (hl),21
 ld hl, Window_x_inicial
@@ -86,6 +119,27 @@ ld hl, Window_x_final_m_1
 ld (hl),26					
 call Pinta_recuadro
 
+LD DE, Button_lupa_1_3
+CALL Print_255_Terminated
+
+LD DE, Button_lupa_2_3
+CALL Print_255_Terminated
+
+LD A, 1
+PUSH BC
+PUSH DE
+CALL ROM_OPEN_CHANNEL
+POP DE
+POP BC
+
+
+LD DE, Button_lupa_3_3
+CALL Print_255_Terminated
+
+LD A, 2
+CALL ROM_OPEN_CHANNEL
+
+;;;; Boton 3
 ld hl, Window_y_final_m_1
 ld (hl),21
 ld hl, Window_x_inicial
@@ -94,13 +148,55 @@ ld hl, Window_x_final_m_1
 ld (hl),31					
 call Pinta_recuadro
 
+LD DE, Button_crime_1_3
+CALL Print_255_Terminated
+
+LD DE, Button_crime_2_3
+CALL Print_255_Terminated
+
+LD A, 1
+PUSH BC
+PUSH DE
+CALL ROM_OPEN_CHANNEL
+POP DE
+POP BC
+
+LD DE, Button_crime_3_3
+CALL Print_255_Terminated
+
+LD A, 2
+CALL ROM_OPEN_CHANNEL
+
 LD DE, City_print_config
 call Print_255_Terminated
 CALL Print_city_text
 
+; PINTA DIA DE LA SEMANA
 LD DE, Hour_print_config
 call Print_255_Terminated
-CALL Print_city_text
+LD A,32
+RST 0x10
+LD DE, Weekdays
+LD HL, CurrentWeekday
+LD A, (HL)
+print_weekday_loop:
+DEC A
+OR A
+JR Z, print_weekday_end
+LD B,0
+LD C,TAM_WEEKDAYS ; TAMAÑO DE LOS DÍAS DE LA SEMANA
+EX  DE,HL
+ADD HL, BC
+EX  DE,HL
+jr print_weekday_loop
+print_weekday_end:
+CALL Print_255_Terminated
+LD A,32
+RST 0x10
+LD DE, CurrentHour
+CALL Print_255_Terminated
+
+
 
 Call Dibuja_Linea
 
@@ -326,6 +422,12 @@ ld de, Cities										;carga en DE el puntero a ciudades
 ld hl, CurrentCity
 ld c, 0 											; PARA MEJORAR LA LEGIBILIDAD EN DEPURIACiÓN
 ld b, (HL)											;carga en B EL ÍNDICE DE la ciudad actual
+ld a,b
+cp RIO_JAN
+jr z, Print_city_text_loop
+LD A,32
+RST 0x10
+
 Print_city_text_loop:
 ld a, (de)											;carga en A el caracter de la cadena apuntado por el puntero en DE
 cp 255												;compara con 255
@@ -354,4 +456,25 @@ db 19, 19, 19, 16, 16, 31, 7, 0
 db 255, 255, 255, 0, 0, 255, 255, 0
 ; UDG H
 db 156, 156, 156, 28, 28, 252, 252, 0
-
+; UDG I ; DEPART 1/7
+db 0, 102, 84, 86, 84, 102, 0, 0
+; UDG J ; DEPART 2/7
+db 0, 238, 170, 238, 138, 138, 0, 0
+; UDG K ; DEPART 3/7
+db 0, 206, 164, 196, 164, 164, 0, 0
+; UDG L ; DEPART 4/7
+db 0, 0, 0, 0, 24, 24, 126, 24
+; UDG M ; DEPART 5/7
+db 0, 127, 6, 0, 0, 0, 0, 0
+; UDG N ; DEPART 6/7
+db 60, 255, 126, 126, 60, 0, 0, 0
+; UDG O ; DEPART 7/7
+db 0, 254, 96, 0, 0, 0, 0, 0
+; UDG P ; LUPA 1/8
+db 0, 0, 3, 12, 16, 35, 36, 64
+; UDG Q ; LUPA 2/8
+db 1, 1, 129, 97, 17, 137, 73, 133
+; UDG R ; LUPA 3/8
+db 0, 0, 0, 0, 1, 15, 63, 124
+; UDG S ; LUPA 4/8
+db 65, 32, 33, 112, 252, 227, 0, 8
