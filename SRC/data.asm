@@ -40,5 +40,9 @@ CurrentHour: db "09:00",255
 
 ; ventana derecha 14x14 caracteres ancho
 
-; comentarios ciudades 120 caracteres * 6 = 720 bytes
-; libre: 2 * 8 * 24
+
+;24 alto /2 = 12 caracteres alto =  12*8 = 96
+
+;32 ancho /3 = 10 caracteres ancho = 80
+
+;libre : 24 * 2 = 48 caracteres

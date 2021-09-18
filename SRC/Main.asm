@@ -32,25 +32,28 @@ MainLoop:
 
 
 LD    HL, Pantalla  ; source address (put "Cobra.scr.zx0" there)
-;LD    DE, 16384  ; target address (screen memory in this case)
+;LD    DE, 16384  ; target address (screen memory in this case) $4000 in hex
 LD    DE, UNZIPPED_SCREEN_ADDRESS
 call dzx0_standard
+
 ;
 ; Print the string TEXT2 using my zero-terminated string print routine
 ;
 CALL Pinta_pantalla_juego
-;ld a, 11
-ld a, 88
-ld c, 3
+
+;ld a, 88
+;ld c, 3
+ld a, 0
+ld c, 0
 call load_screen
 end_loop:
 jr end_loop
 ret
 
 Pantalla:
+incbin "prueba_inverso.scr.zx0"
 incbin "From_01_to_06.scr.zx0"
 incbin "From_07_to_12.scr.zx0"
-incbin "From_13_to_18.scr.zx0"
 include "dzx0_standard.asm"
 Carton_bold_font:
 include "Carton_bold_font.asm"
