@@ -41,17 +41,13 @@ call dzx0_standard
 ;
 CALL Pinta_pantalla_juego
 
-;ld a, 88
-;ld c, 3
-ld a, 0
-ld c, 0
-call load_screen
+Call Pinta_imagen_ciudad
+
 end_loop:
 jr end_loop
 ret
 
 Pantalla:
-incbin "prueba_inverso.scr.zx0"
 incbin "From_01_to_06.scr.zx0"
 incbin "From_07_to_12.scr.zx0"
 include "dzx0_standard.asm"
