@@ -1,18 +1,11 @@
-;UNZIPPED_SCREEN_ADDRESS EQU 58455
 UNZIPPED_SCREEN_ADDRESS EQU 57344;+2176  ; 32 de prueba; EL VALOR Válido para la primera fila 
-;UNZIPPED_SCREEN_ADDRESS EQU 59456 ; EL VALOR de prueba para la segunda fila
-;UNZIPPED_ATTRIBUTES_ADDRESS EQU UNZIPPED_SCREEN_ADDRESS+6144
-UNZIPPED_ATTRIBUTES_ADDRESS EQU 57344+6144 
-
+UNZIPPED_ATTRIBUTES_ADDRESS EQU UNZIPPED_SCREEN_ADDRESS+6144 
 LIVE_SCREEN_ADDRESS EQU 16384
 LIVE_ATTRIBUTES_ADDRESS EQU 22528
 CITY_PICTURE_WIDTH_IN_CHARACTERS EQU 10 ; 10 characters
 CITY_PICTURE_HEIGHT_IN_CHARACTERS EQU 12 ; 12 characters
 CITY_PICTURE_WIDTH_IN_PIXELS EQU CITY_PICTURE_WIDTH_IN_CHARACTERS*8 ; 80
 CITY_PICTURE_HEIGHT_IN_PIXELS EQU CITY_PICTURE_HEIGHT_IN_CHARACTERS*8 ; 96
-;CITY_PICTURE_HORIZONTAL_OFFSET_IN_PIXELS EQU (256-CITY_PICTURE_WIDTH_IN_PIXELS) ; 176
-;CITY_PICTURE_HORIZONTAL_OFFSET_IN_CHARACTERS EQU (32-CITY_PICTURE_WIDTH_IN_CHARACTERS) ; 32-10 = 22
-
 
 ;#####################################################################################################
 ;#####				load_screen
@@ -20,38 +13,6 @@ CITY_PICTURE_HEIGHT_IN_PIXELS EQU CITY_PICTURE_HEIGHT_IN_CHARACTERS*8 ; 96
 
 ;; A: Y pixels shift down
 ;; C: X Characters shift left
-
-ex af, af'
-ld hl, CurrentCity
-ld a, (hl)
-label_cp_modulo_6:
-cp 6
-jr nc, fin_modulo_6
-sub 6
-jr label_cp_modulo_6
-fin_modulo_6:
-dec a
-cp 3
-; jr nc, fin_modulo_6
-
-;;;; TODO -> probar primero con LIVE_ATTRIBUTES_ADDRESS desplazado a ver como va
-;;;; TODO -> UNZIPPED_SCREEN_ADDRESS a variable
-;;;; TODO -> LIVE_ATTRIBUTES_ADDRESS a variable
-;;;; si es >=3 se suma 8*12*32 = 3072 ?
-;;;; si es 1 o 4 se suma 10
-;;;; si es 2 o 5 se suma 2*10
-;;;; ------------------------------------
-;;;; |			|			|			|
-;;;; |		0	|		1	|		2	|
-;;;; |			|			|			|
-;;;; ------------------------------------
-;;;; |			|			|			|
-;;;; |		3	|		4	|		5	|
-;;;; |			|			|			|
-;;;; ------------------------------------
-
-;Screen_source_address
-ex af, af'
 
 load_screen:
 LD B,0									; Se descarta la parte alta de BC
@@ -75,7 +36,7 @@ LD E, L									;copia HL a DE
 
 ;LD DE, LIVE_SCREEN_ADDRESS+3+2048
 
-ld hl, Screen_source_address_offset
+ld hl, Aux_screen_horizontal_offset
 ld a, (hl)
 LD HL, UNZIPPED_SCREEN_ADDRESS			; Como base de la dirección de lectura se usa la constante UNZIPPED_SCREEN_ADDRESS
 ADD A, L
@@ -140,7 +101,7 @@ add a, 8
 ld h, a
 ;;; ld l,0
 exx
-ld hl, Screen_source_address_offset
+ld hl, Aux_screen_horizontal_offset
 ld l,(hl)
 push hl
 exx
@@ -181,63 +142,70 @@ ret
 
 Copiar_atributos:
 
+LD IYL, CITY_PICTURE_HEIGHT_IN_CHARACTERS		; Carga en IYL la altura de la imagen en caracteres
+LD B,0											; Carga 0 en B
+LD HL, LIVE_ATTRIBUTES_ADDRESS					; Carga en HL la dirección de la zona de los atributos de la pantalla
+ADD HL, BC										; Suma a HL los caracteres de desplazamiento a la izquierda
 
+LD B, A											; Carga en B el parámetro del número de caracteres de desplazamiento hacia abajo
+OR A											; OR para comparar A con 0
+JR Z, fin_mini_bucle							; Si es 0 entonces salta a la etiqueta
+mini_bucle:										 
+LD DE, 32										; Carga 32 en DE
+ADD HL, DE										; Suma 32 a HL (con la dirección de los atributos)
+DJNZ mini_bucle									; Si hay más caracteres que desplazar hacia abajo, salta a nueva iteración
+fin_mini_bucle:
 
-ld iyl, CITY_PICTURE_HEIGHT_IN_CHARACTERS
-LD B,0
+; OFFSET HORIZONTAL
+EXX 											; Intercambia BC, DE, HL con sus alternativos
+EX AF, AF'										; Intercambia AF con su alternativo
+LD HL, Aux_screen_horizontal_offset				; Carga en HL la dirección del offset horizontal de la pantalla auxiliar
+LD DE, UNZIPPED_ATTRIBUTES_ADDRESS				; Carga en DE la dirección de los atributos en la pantalla auxiliar
+LD E, (HL)										; Carga en E el offset horizontal de la pantalla auxiliar
 
-LD HL, LIVE_ATTRIBUTES_ADDRESS
-ADD HL, BC
+; OFFSET VERTICAL
+LD HL, Aux_screen_vertical_offset				; Carga en HL la dirección del offset vertical
+LD A, (HL)										; Carga en el registro A el valor del offset vertical
+OR A											; operación OR de comparación
+JR Z, Fin_offset_vertical						; si el registro A es 0, salta y no hagas offset vertical
+INC D											; suma 1 a la parte alta de la dirección de los atributos auxiliares, es decir, suma 256 al valor de 16 bits
+ADD A, E										; añade 128 a la parte baja de la dirección de los atributos auxiliares 
+LD E, A											; Carga en la parte baja de la dirección de los atributos auxiliares el valor calculado para la zona inferior
+Fin_offset_vertical:
 
-ld b, a
-mini_bucle:
-ld DE, 32
-add hl, DE
-djnz mini_bucle
+PUSH DE											; Preserva el registro DE en la pila
+EXX												; Intercambia BC, DE, HL con sus alternativos
+EX AF, AF'										; Intercambia AF con su alternativo
+POP DE											; Recupera el registro DE de la pila
 
-exx ; BC, DE, HL
-ex af, af'
-ld hl, Screen_source_address_offset
-ld b, (hl)
-LD DE, UNZIPPED_ATTRIBUTES_ADDRESS
-ld hl, Screen_source_address_offset
-ld e, (hl)
-ld a, e
-add a, b
-ld a, e
-push de
-exx
-ex af, af'
-pop de
-
-EX DE,HL
+EX DE,HL										; DE (con la dirección y el offset horizontal de los atributos) pasa a ser HL (que será origen)
+												; HL (con la dirección de los atributos de pantalla real con sus dos offsets) pasa a ser DE (que será destino)
 
 iteracion_copiar_atributos:
-ld b,0
-ld c, CITY_PICTURE_WIDTH_IN_CHARACTERS
-push hl
-push de
-LDIR										; realiza el bucle interno
-; LDIR = Repetir LDI hasta que BC valga 0
-;     = Repetir:
-;          Copiar [HL] en [DE]
-;          DE=DE+1
-;          HL=HL+1
-;          BC=BC-1
-;       Hasta que BC = 0
-pop de
-pop hl 
+LD B,0
+LD C, CITY_PICTURE_WIDTH_IN_CHARACTERS
+PUSH HL
+PUSH DE
+LDIR											; REALIZA EL BUCLE INTERNO
+												; LDIR = REPETIR LDI HASTA QUE BC VALGA 0
+												;     = REPETIR:
+												;          COPIAR [HL] EN [DE]
+												;          DE=DE+1
+												;          HL=HL+1
+												;          BC=BC-1
+												;       HASTA QUE BC = 0
+POP DE
+POP HL 
 
-ld bc, 32
-ex de, hl
-add hl, bc
-ex de, hl
-add hl, bc
-dec iyl
-jr nz, iteracion_copiar_atributos
+LD BC, 32
+EX DE, HL
+ADD HL, BC
+EX DE, HL
+ADD HL, BC
+DEC IYL
+JR NZ, iteracion_copiar_atributos
 
-ret
-
+RET
 
 ; NextScan. https://wiki.speccy.org/cursos/ensamblador/gfx2_direccionamiento
 ; Obtiene la posición de memoria correspondiente al scanline siguiente al indicado.
@@ -247,38 +215,42 @@ ret
 ; Altera el valor de los registros AF y HL.
 ; -----------------------------------------------------------------------------
 NextScan:
-inc h ; Incrementa H para incrementar el scanline
-ld a, h ; Carga el valor en A
-and $07 ; Se queda con los bits del scanline
-ret nz ; Si el valor no es 0, fin de la rutina
+INC H											; Incrementa H para incrementar el scanline
+LD A, H											; Carga el valor en A
+AND $07											; Se queda con los bits del scanline
+RET NZ											; Si el valor no es 0, fin de la rutina
 
 ; Calcula la siguiente línea
-ld a, l ; Carga el valor en A
-add a, $20 ; Añade 1 a la línea (%0010 0000)
-ld l, a ; Carga el valor en L
-ret c ; Si hay acarreo, ha cambiado de tercio,
+LD A, L 										; Carga el valor en A
+ADD A, $20										; Añade 1 a la línea (%0010 0000)
+LD L, A											; Carga el valor en L
+RET C											; Si hay acarreo, ha cambiado de tercio,
 
 ; que ya viene ajustado de arriba. Fin de la rutina
 
 ; Si llega aquí, no ha cambiado de tercio y hay que ajustar
 ; ya que el primer inc h incrementó el tercio
-ld a, h ; Carga el valor en A
-sub $08 ; Resta un tercio (%0000 1000)
-ld h, a ; Carga el valor en H
-ret
+LD A, H 										; Carga el valor en A
+SUB $08 										; Resta un tercio (%0000 1000)
+LD H, A											; Carga el valor en H
+RET
 
 ;#####################################################################################################
-;#####				Copiar_atributos
+;#####				Pinta_imagen_ciudad
 ;#####################################################################################################
 Pinta_imagen_ciudad:
-ld hl,Screen_source_address_offset
+LD HL, Aux_screen_horizontal_offset
 ;ld (hl), 20
-ld (hl), 0
+LD (HL), 20
 
-ld a, 88
-ld c, 3
-call load_screen
-ld a, 11
-ld c, 3
-call Copiar_atributos
-ret
+LD HL, Aux_screen_vertical_offset
+;ld (hl), 20
+LD (HL), 128
+
+LD A, 88
+LD C, 3
+CALL load_screen
+LD A, 11
+LD C, 3
+CALL Copiar_atributos
+RET

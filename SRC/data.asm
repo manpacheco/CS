@@ -16,7 +16,9 @@ Weekdays: db "Mon", 255,"Tue",255,"Wed",255,"Thu",255,"Fri",255,"Sat",255,"Sun",
 
 ;Estado actual
 Suspect: db 99
-Screen_source_address_offset db 0
+;Screen_source_address_offset db 0 ; 0/10/20
+Aux_screen_horizontal_offset db 0 ; 0/10/20
+Aux_screen_vertical_offset db 0 ; 0/128
 CurrentCity: db 1 ; rango [1,31]
 CurrentCountry: db 28
 CurrentWeekday: db 3 ; EMPIEZA EN 1
