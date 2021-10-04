@@ -13,12 +13,15 @@ CITY_PICTURE_HEIGHT_IN_PIXELS EQU CITY_PICTURE_HEIGHT_IN_CHARACTERS*8 ; 96
 
 ;; A: Y pixels shift down
 ;; C: X Characters shift left
+;; POSIBLE PARÁMETRO IYL, contador de iteraciones hasta resetear el tercio
 
 load_screen:
+; offset horizontal en destino
 LD B,0									; Se descarta la parte alta de BC
-LD HL, LIVE_SCREEN_ADDRESS				; Se carga en el registro HL la dirección de la memoria de video
+LD HL, LIVE_SCREEN_ADDRESS				; Se carga en el registro HL la dirección de la memoria de video que hace de base de destino
 ADD HL, BC								; Se le suman a la dirección de la memoria de vídeo los caracteres de offset en horizontal (en el registro C)
 
+; offset vertical en destino
 baja_una_scanline:
 OR A									; examina el registro A
 JR z,no_bajar_mas						; si es 0, entonces deja de iterar	
@@ -26,30 +29,23 @@ EX AF,AF'								; preserva AF en el registro alternativo AF´
 CALL NextScan							; machaca con la siguiente scanline
 EX AF,AF'								; restaura AF que estaba guardado en el registro alternativo AF´
 DEC A									; decrementa el contador en A
-JR baja_una_scanline
+JR baja_una_scanline					; siguiente iteración
 no_bajar_mas:
 
 ; EMPIEZA LA COPIA DE MEMORIA A MEMORIA
-
-LD D, H									;copia HL a DE
-LD E, L									;copia HL a DE
-
-;LD DE, LIVE_SCREEN_ADDRESS+3+2048
-
-ld hl, Aux_screen_horizontal_offset
-ld a, (hl)
+EX DE, HL								; Después de haber sumado con HL se pone la dirección destino ajustada en DE
+LD HL, Aux_screen_horizontal_offset		; Se carga en HL la dirección de offset horizontal de origen
+LD A, (HL)								; Carga en A el offset horizontal de origen
 LD HL, UNZIPPED_SCREEN_ADDRESS			; Como base de la dirección de lectura se usa la constante UNZIPPED_SCREEN_ADDRESS
-ADD A, L
-LD L, A
-										; que se ajustará automáticamente a la dirección donde se aloje
-LD A, CITY_PICTURE_HEIGHT_IN_PIXELS		; Carga la altura de la imagen pegada como contador de iteraciones del bucle externo
-;LD A, 8 ; PRUEBA
+ADD A, L								; Suma a la dirección de lectura el offset horizontal de origen
+LD L, A									; Lleva el resultado a la parte baja de HL
+									
+LD A, CITY_PICTURE_HEIGHT_IN_PIXELS		; Carga en el registro A la altura de la imagen pegada como contador de iteraciones del bucle externo
 
-
-ld iyh, 0								; carga en IY las 8 iteraciones de la misma línea
-ld iyl, 8								; carga en IY las 8 iteraciones de la misma línea
-push hl									; preserva hl en ix
-pop ix									; preserva hl en ix
+LD IYH, 0								; carga en IY las 8 iteraciones de la misma línea
+LD IYL, 8								; carga en IY las 8 iteraciones de la misma línea
+PUSH HL									; preserva HL en ix
+POP IX									; preserva HL en ix
 
 load_screen_loop:
 
@@ -57,79 +53,72 @@ LD BC, CITY_PICTURE_WIDTH_IN_CHARACTERS ; Carga la anchura de la imagen pegada c
 PUSH HL									; preserva HL en la pila
 PUSH DE									; preserva DE en la pila
 LDIR									; realiza el bucle interno
-; LDIR = Repetir LDI hasta que BC valga 0
-;     = Repetir:
-;          Copiar [HL] en [DE]
-;          DE=DE+1
-;          HL=HL+1
-;          BC=BC-1
-;       Hasta que BC = 0
+										; LDIR = Repetir LDI hasta que BC valga 0
+										;     = Repetir:
+										;          Copiar [HL] en [DE]
+										;          DE=DE+1
+										;          HL=HL+1
+										;          BC=BC-1
+										;       Hasta que BC = 0
 POP DE
 
 ; Postprocesamiento de DE -> Se le hace nextscan para ir a la siguiente línea
-;ADD HL, BC
-EX DE, HL
-EX AF, AF'
-CALL NextScan
-;ADD HL, BC
-EX AF, AF'
-EX DE, HL
+EX DE, HL								; mete el registro DE en Hl para que sirva como entrada
+EX AF, AF'								; preserva AF en el registro alternativo
+CALL NextScan							; baja una línea el puntero en HL
+EX AF, AF'								; restaura AF desde el registro alternativo
+EX DE, HL								; mete la dirección incrementada de vuelta a DE
 
 ; Postprocesamiento de HL
-
-dec iyl									; decrementa el contador de las iteraciones que corresponden a las 8 scanlines de una fila
+DEC IYL									; decrementa el contador de las iteraciones que corresponden a las 8 scanlines de una fila
 EX AF, AF'								; preserva AF en el registro alternativo
-ld a, iyl								; carga en A el contador de iteraciones 
-or a									; comparar con 0
+LD A, IYL								; carga en A el contador de iteraciones 
+OR A									; comparar con 0
 EX AF, AF'								; restaurar AF con el registro alternativo
-jr nz, continuar_postprocesamiento		; si no es 0, continuar pasando scanlines
+JR NZ, continuar_postprocesamiento		; si no es 0, continuar pasando scanlines
 
-ld iyh, 0								; carga en IY las 8 iteraciones de la misma línea
-ld iyl, 8								; carga en IY las 8 iteraciones de la misma línea
+; Restaura el contador de las 8 iteraciones
+LD IYH, 0								; carga en IY las 8 iteraciones de la misma línea
+LD IYL, 8								; carga en IY las 8 iteraciones de la misma línea
 
-pop hl									;$8824
-push ix
-pop hl
+										; posible dirección de memoria $8824
+POP HL									; restaura HL en la pila del comienzo de la iteración
+PUSH IX									; se pone IX en la pila
+POP HL									; y se carga en HL para poder operar con él
 
-ex af,af'
-ld a, l
-add a, 32
-jr nc, suma_32_sin_carry
+EX AF,AF'								; Preserva AF en el registro alternativo
+LD A, L									; Carga en A la parte menos significativa de HL
+ADD A, 32								; le suma 32 (una fila de pantalla)
+JR NC, suma_32_sin_carry				; si no se produce carry, salta
 
-ld a, h
-add a, 8
-ld h, a
-;;; ld l,0
-exx
-ld hl, Aux_screen_horizontal_offset
-ld l,(hl)
-push hl
-exx
-push bc
-pop bc
-pop bc
-ld l,c
-
-;ld l,10 ;;; TODO -AJUSTAR OFFSET-
-jr fin_suma_32
+LD A, H									; Ha habido carry, entonces carga en A la parte más significativa de HL
+ADD A, 8								; le suma 8 (cambia al siguiente tercio)
+LD H, A									; fija el valor de H al resultado anterior con el tercio avanzado
+EXX										; preservar registros en alternativos
+LD HL, Aux_screen_horizontal_offset		; carga en HL el puntero al offset horizontal de origen
+LD L,(HL)								; carga en L el valor
+PUSH HL									; mete el valor de HL en la pila
+EXX										; restaura todos los registros
+POP BC									; pasa el valor del puntero con el offset que estaba en la pila al registro BC
+LD L,C									; mete la parte menos significativa del puntero en HL
+JR fin_suma_32							; salta para no sobreescribir L
 
 suma_32_sin_carry:
-ld l, a
+LD L, A									; No se ha producido carry, carga la parte baja del puntero con el 32 añadido en la parte baja de HL
 fin_suma_32:
-ex af, af'
-push hl
-pop ix
+EX AF, AF'								; Restaura AF desde el registro alternativo
+PUSH HL									; Se pone HL en la pila
+POP IX									; Se carga en el registro IX
+JR fin_postprocesamiento				; salta al final
 
-jr fin_postprocesamiento
-
-continuar_postprocesamiento:
-pop hl									;$8833
-inc h
+continuar_postprocesamiento:			;$8833
+POP HL									; Recupera del valor de HL
+INC H									; Incrementa la parte alta (avanza una scanline)
 fin_postprocesamiento:
 
-DEC A
-OR A
-JR NZ, load_screen_loop
+DEC A									; Decrementa A
+OR A									; OR de comparación
+JR NZ, load_screen_loop					; Si no es 0, continúa iterando
 
 ret
 
@@ -137,16 +126,19 @@ ret
 ;#####				Copiar_atributos
 ;#####################################################################################################
 
-;; A: Y characters shift down
-;; C: X Characters shift left
+;; A: Y characters shift down (en destino)
+;; C: X Characters shift left (en destino)
 
 Copiar_atributos:
 
 LD IYL, CITY_PICTURE_HEIGHT_IN_CHARACTERS		; Carga en IYL la altura de la imagen en caracteres
+
+; OFFSET HORIZONTAL EN DESTINO
 LD B,0											; Carga 0 en B
 LD HL, LIVE_ATTRIBUTES_ADDRESS					; Carga en HL la dirección de la zona de los atributos de la pantalla
 ADD HL, BC										; Suma a HL los caracteres de desplazamiento a la izquierda
 
+; OFFSET VERTICAL EN DESTINO
 LD B, A											; Carga en B el parámetro del número de caracteres de desplazamiento hacia abajo
 OR A											; OR para comparar A con 0
 JR Z, fin_mini_bucle							; Si es 0 entonces salta a la etiqueta
@@ -156,14 +148,14 @@ ADD HL, DE										; Suma 32 a HL (con la dirección de los atributos)
 DJNZ mini_bucle									; Si hay más caracteres que desplazar hacia abajo, salta a nueva iteración
 fin_mini_bucle:
 
-; OFFSET HORIZONTAL
+; OFFSET HORIZONTAL EN ORIGEN
 EXX 											; Intercambia BC, DE, HL con sus alternativos
 EX AF, AF'										; Intercambia AF con su alternativo
 LD HL, Aux_screen_horizontal_offset				; Carga en HL la dirección del offset horizontal de la pantalla auxiliar
 LD DE, UNZIPPED_ATTRIBUTES_ADDRESS				; Carga en DE la dirección de los atributos en la pantalla auxiliar
 LD E, (HL)										; Carga en E el offset horizontal de la pantalla auxiliar
 
-; OFFSET VERTICAL
+; OFFSET VERTICAL EN ORIGEN
 LD HL, Aux_screen_vertical_offset				; Carga en HL la dirección del offset vertical
 LD A, (HL)										; Carga en el registro A el valor del offset vertical
 OR A											; operación OR de comparación
@@ -182,10 +174,10 @@ EX DE,HL										; DE (con la dirección y el offset horizontal de los atributo
 												; HL (con la dirección de los atributos de pantalla real con sus dos offsets) pasa a ser DE (que será destino)
 
 iteracion_copiar_atributos:
-LD B,0
-LD C, CITY_PICTURE_WIDTH_IN_CHARACTERS
-PUSH HL
-PUSH DE
+LD B,0											; Descarta la parte alta de BC
+LD C, CITY_PICTURE_WIDTH_IN_CHARACTERS			; Mete en BC el número de iteraciones (igual a la anchura en caracteres)
+PUSH HL											; Preserva la dirección de origen de los datos en la pila
+PUSH DE											; Preserva la dirección de destino de los datos en la pila
 LDIR											; REALIZA EL BUCLE INTERNO
 												; LDIR = REPETIR LDI HASTA QUE BC VALGA 0
 												;     = REPETIR:
@@ -194,16 +186,16 @@ LDIR											; REALIZA EL BUCLE INTERNO
 												;          HL=HL+1
 												;          BC=BC-1
 												;       HASTA QUE BC = 0
-POP DE
-POP HL 
+POP DE											; Restaura en DE la dirección de destino de los datos desde la pila
+POP HL											; Restaura en HL la dirección de origen de los datos desde la pila
 
-LD BC, 32
-EX DE, HL
-ADD HL, BC
-EX DE, HL
-ADD HL, BC
-DEC IYL
-JR NZ, iteracion_copiar_atributos
+LD BC, 32										; Carga 32 en el registro BC
+EX DE, HL										; Intercambia HL y DE (origen y destino) para poder realizar la suma con HL
+ADD HL, BC										; suma 32 al registro HL (una fila de atributos) que ahora contiene el destino
+EX DE, HL										; Vuelve a intercambia HL y DE (origen y destino) y se quedan en su sitio original
+ADD HL, BC										; suma 32 al registro HL (una fila de atributos) que ahora contiene el origen
+DEC IYL											; Decrementa YHL que lleva la cuenta del número de iteraciones (originalmente la altura en caracteres)
+JR NZ, iteracion_copiar_atributos				; Si el contador no es cero, salta a una nueva iteración
 
 RET
 
@@ -241,11 +233,11 @@ RET
 Pinta_imagen_ciudad:
 LD HL, Aux_screen_horizontal_offset
 ;ld (hl), 20
-LD (HL), 20
+LD (HL), 0
 
 LD HL, Aux_screen_vertical_offset
-;ld (hl), 20
-LD (HL), 128
+;LD (HL), 128
+LD (HL), 0
 
 LD A, 88
 LD C, 3
