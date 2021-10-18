@@ -26,7 +26,7 @@ BORDE_DER					EQU 148
 ESQUINA_INFERIOR_IZQ		EQU 149
 BORDE_INFERIOR				EQU 150
 ESQUINA_INFERIOR_DER		EQU 151
-RIO_JAN						EQU 6
+RIO_JAN						EQU 26
 TAM_WEEKDAYS				EQU 4
 Menu:						DB AT, 1, 0, PAPER, 7, INK, 2, " G", INK, 0, "ame  ", INK, 2, "O", INK, 0, "ptions  ", INK, 2, "A", INK, 0, "cme  ", INK, 2, "D", INK, 0, "ossiers ",255
 City_print_config:			DB AT, 5, 1, PAPER, 0, INK, 7, 255
@@ -103,7 +103,6 @@ CALL ROM_OPEN_CHANNEL
 POP DE
 POP BC
 
-
 LD DE, Button_depart_3_3
 CALL Print_255_Terminated
 
@@ -170,6 +169,7 @@ CALL ROM_OPEN_CHANNEL
 LD DE, City_print_config
 call Print_255_Terminated
 CALL Print_city_text
+CALL Print_city_desc
 
 ; PINTA DIA DE LA SEMANA
 LD DE, Hour_print_config
@@ -405,6 +405,7 @@ RET
 
 ;#####################################################################################################
 ;#####				Print_255_Terminated
+;#####		parámetro: en el registro DE viene la dirección de la cadena que se va a escribir 
 ;#####################################################################################################
 Print_255_Terminated:
 LD A, (DE)											; Get the character
@@ -415,29 +416,73 @@ INC DE												; Inc to the next character in the string
 JR Print_255_Terminated								; Loop
 
 ;#####################################################################################################
+;#####				Print_255_Terminated_with_line_wrap
+;#####		parámetro: en el registro DE viene la dirección de la cadena que se va a escribir 
+;#####		parámetro: en el registro A viene la longitud máxima de la cadena
+;#####################################################################################################
+Print_255_Terminated_with_line_wrap:
+LD A, (DE)											; Get the character
+CP 255												; CP with 255
+RET Z												; Ret if it is zero
+RST 0x10											; Otherwise print the character
+INC DE												; Inc to the next character in the string
+JR Print_255_Terminated								; Loop
+
+
+;#####################################################################################################
 ;#####				Print_city_text
 ;#####################################################################################################
 Print_city_text:
-ld de, Cities										;carga en DE el puntero a ciudades
-ld hl, CurrentCity
-ld c, 0 											; PARA MEJORAR LA LEGIBILIDAD EN DEPURIACiÓN
-ld b, (HL)											;carga en B EL ÍNDICE DE la ciudad actual
-ld a,b
-cp RIO_JAN
-jr z, Print_city_text_loop
-LD A,32
-RST 0x10
+LD HL, CurrentCity
+LD C, 0 											; PARA MEJORAR LA LEGIBILIDAD EN DEPURACiÓN
+LD B, (HL)											; carga en B EL ÍNDICE DE la ciudad actual
+INC B												; suma 1 al índice de ciudad
+LD A,B												; carga el dato en el registro A
+CP RIO_JAN											; Chequea si es Rio de Janeiro
+JR Z, Print_city_text_loop							; Si es esa
+LD A,32												; carga un espacio en el registro A
+RST 0x10											; Pinta el caracter
 
 Print_city_text_loop:
-ld a, (de)											;carga en A el caracter de la cadena apuntado por el puntero en DE
-cp 255												;compara con 255
-jp z, no_incrementar_contador_ciudades				;si es 255, salta para no incrementar B
-inc b
-no_incrementar_contador_ciudades:
-inc de												;pasa al siguiente caracter
-djnz Print_city_text_loop
-call Print_255_Terminated
-ret
+LD DE, Cities										; carga en DE el puntero a ciudades
+CALL Select_elemento
+CALL Print_255_Terminated
+RET
+
+;#####################################################################################################
+;#####				Select_elemento
+;#####		parámetro: en el registro BC viene el índice del elemento que se va a seleccionar
+;#####		parámetro: en el registro DE viene la dirección de la cadena que se va a escribir 
+;#####		salida: en el registro DE sale la dirección de la cadena con el elemento seleccionado
+;#####################################################################################################
+Select_elemento:
+LD A, (DE)											; carga en A el caracter de la cadena apuntado por el puntero en DE
+CP 255												; compara con 255
+JP Z, no_incrementar_contador						; si es 255, salta para no incrementar B
+INC B												; incrementa el contador en el registro B
+no_incrementar_contador:
+INC DE												; pasa al siguiente caracter
+DJNZ Select_elemento
+RET
+
+;#####################################################################################################
+;#####				Print_city_desc
+;#####################################################################################################
+Print_city_desc:
+LD A, AT                							; AT control character
+RST 0x10
+LD A, 4                 							; Y
+RST 0x10
+LD A, 17                							; X
+RST 0x10
+
+LD HL, CurrentCity
+LD DE, City_descriptions
+LD B, (HL)
+LD C, 0
+call Select_elemento
+CALL Print_255_Terminated
+RET
 
 org 65368
 ; UDG A

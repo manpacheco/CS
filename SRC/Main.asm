@@ -1,5 +1,3 @@
-;org $8000
-;ORG $5B00
 ORG $6000
 
 include "data.asm"
@@ -31,10 +29,7 @@ MainLoop:
 ; include "Display.asm"
 
 
-LD    HL, Pantalla  ; source address (put "Cobra.scr.zx0" there)
-;LD    DE, 16384  ; target address (screen memory in this case) $4000 in hex
-LD    DE, UNZIPPED_SCREEN_ADDRESS
-call dzx0_standard
+
 
 ;
 ; Print the string TEXT2 using my zero-terminated string print routine
@@ -49,12 +44,21 @@ ret
 
 Pantalla:
 incbin "From_01_to_06.scr.zx0"
+Pantalla0712:
 incbin "From_07_to_12.scr.zx0"
+Pantalla1318:
+incbin "From_13_to_18.scr.zx0"
+Pantalla1924:
+incbin "From_19_to_24.scr.zx0"
+Pantalla2530:
+incbin "From_25_to_30.scr.zx0"
+PantallaWorld:
+incbin "world.scr.zx0"
 include "dzx0_standard.asm"
 Carton_bold_font:
 include "Carton_bold_font.asm"
 include "screens.asm"
 include "print.asm"
-
+Last_position:
 
 end Main

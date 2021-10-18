@@ -1,8 +1,12 @@
 @echo off
+cd "C:\Users\Manuel\Desktop\Proyecto ZX-DEV CS\CSand"
 del cs.tap /Q
-del public.txt /Q
 cd src
+del public.txt /Q
 pasmo --name cs --tapbas Main.asm ..\cs.tap --public
+echo Renombrando
 REN --public public.txt
 cd ..
 "C:\Mis programas\Spectaculator\Spectaculator.exe" cs.tap
+
+

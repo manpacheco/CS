@@ -1,4 +1,4 @@
-UNZIPPED_SCREEN_ADDRESS EQU 57344;+2176  ; 32 de prueba; EL VALOR Válido para la primera fila 
+UNZIPPED_SCREEN_ADDRESS EQU 57344 ;$E000
 UNZIPPED_ATTRIBUTES_ADDRESS EQU UNZIPPED_SCREEN_ADDRESS+6144 
 LIVE_SCREEN_ADDRESS EQU 16384
 LIVE_ATTRIBUTES_ADDRESS EQU 22528
@@ -13,7 +13,7 @@ CITY_PICTURE_HEIGHT_IN_PIXELS EQU CITY_PICTURE_HEIGHT_IN_CHARACTERS*8 ; 96
 
 ;; A: Y pixels shift down
 ;; C: X Characters shift left
-;; POSIBLE PARÁMETRO IYL, contador de iteraciones hasta resetear el tercio
+;; IYL si es 0 fila de arriba, >0 fila de abajo
 
 load_screen:
 ; offset horizontal en destino
@@ -38,7 +38,30 @@ LD HL, Aux_screen_horizontal_offset		; Se carga en HL la dirección de offset ho
 LD A, (HL)								; Carga en A el offset horizontal de origen
 LD HL, UNZIPPED_SCREEN_ADDRESS			; Como base de la dirección de lectura se usa la constante UNZIPPED_SCREEN_ADDRESS
 ADD A, L								; Suma a la dirección de lectura el offset horizontal de origen
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; SEGUIR POR AQUÍ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+EX AF, AF'							;Preserva AF en el alternativo
+LD A, IYL							; Carga en el registro A el valor de YHL (que contiene el parámetro)
+OR A								; Es 0?
+JR Z, SIN_AJUSTE_MITAD_TERMINADO	; Si es cero, no hagas nada y salta
+; TESTS
+EX AF, AF'								; Restaura AF desde el alternativo
+ADD A, 128								; Si no es 0, habrá que sumar las el offset de mitad de pantalla
+										; 12 filas * 8 scanlines * 32 columnassuma 128 al registro A que irá a la parte baja
+; FIN TESTS								; 1152= 100 (8) en H y 1000 0000 (128) en L
+
 LD L, A									; Lleva el resultado a la parte baja de HL
+; TESTS
+LD A, H									; Carga en el registro A la parte alta de la dirección (en HL)
+ADD A, 8								; le suma 8 a la parte alta (para avanzar al siguiente tercio de pantalla)
+LD H, A									; carga en la parte alta el resultado que queda en el registro A
+; FIN TESTS
+JR AJUSTE_MITAD_TERMINADO
+SIN_AJUSTE_MITAD_TERMINADO:
+EX AF, AF'								; Restaura AF desde el alternativo
+LD L, A									; Lleva el resultado a la parte baja de HL
+AJUSTE_MITAD_TERMINADO:
+
 									
 LD A, CITY_PICTURE_HEIGHT_IN_PIXELS		; Carga en el registro A la altura de la imagen pegada como contador de iteraciones del bucle externo
 
@@ -231,16 +254,73 @@ RET
 ;#####				Pinta_imagen_ciudad
 ;#####################################################################################################
 Pinta_imagen_ciudad:
-LD HL, Aux_screen_horizontal_offset
-;ld (hl), 20
+LD HL, CurrentCity
+LD A, (HL)
+
+LD DE, Pantalla
+CP 7
+JR C, FinSaltosPantalla
+LD DE, Pantalla0712
+CP 13
+JR C, FinSaltosPantalla
+LD DE, Pantalla1318
+CP 19
+JR C, FinSaltosPantalla
+LD DE, Pantalla1924
+CP 25
+JR C, FinSaltosPantalla
+LD DE, Pantalla2530  
+
+FinSaltosPantalla:
+EX DE, HL
+LD    DE, UNZIPPED_SCREEN_ADDRESS
+call dzx0_standard
+
+LD HL, CurrentCity
+LD A, (HL)
+LD HL, Aux_screen_vertical_offset
+DEC A
+
+MODULO_CURRENT_CITY:
+CP 6
+JR C, FIN_MODULO_CURRENT_CITY
+SUB 6
+JR MODULO_CURRENT_CITY
+FIN_MODULO_CURRENT_CITY:
+
+CP 3
+JR NC, Fila_inferior
 LD (HL), 0
+JR Selecciona_columna
+Fila_inferior:
+LD (HL), 128
+SUB 3
+
+
+Selecciona_columna:
+LD HL, Aux_screen_horizontal_offset
+CP 2
+JR Z, Columna_20
+CP 1
+JR Z, Columna_10
+JR Columna_0
+Columna_20:
+LD (HL), 20
+JR Fin_seleccion_columna
+Columna_10:
+LD (HL), 10
+JR Fin_seleccion_columna
+Columna_0:
+LD (HL), 0
+Fin_seleccion_columna:
 
 LD HL, Aux_screen_vertical_offset
-;LD (HL), 128
-LD (HL), 0
+LD A, (HL)
+LD IYL, A
 
 LD A, 88
 LD C, 3
+
 CALL load_screen
 LD A, 11
 LD C, 3
