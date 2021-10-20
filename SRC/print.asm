@@ -4,6 +4,9 @@
 ROM_CLS                 	EQU  0x0DAF             ; Clears the screen and opens channel 2
 ROM_OPEN_CHANNEL        	EQU  0x1601             ; Open a channel
 ROM_PRINT               	EQU  0x203C             ; Print a string 
+
+ROM_PRINT_CURRENT_COLUMN	EQU 23688				; valor para hacer line wrap
+ROM_PRINT_CURRENT_LINE		EQU 23689				; valor para hacer retorno de carro
 ;
 ; PRINT control codes - work with ROM_PRINT and RST 0x10
 ;
@@ -418,16 +421,42 @@ JR Print_255_Terminated								; Loop
 ;#####################################################################################################
 ;#####				Print_255_Terminated_with_line_wrap
 ;#####		parámetro: en el registro DE viene la dirección de la cadena que se va a escribir 
-;#####		parámetro: en el registro A viene la longitud máxima de la cadena
+;#####		parámetro: en el registro B el limite izquierdo
+;#####		parámetro: en el registro C el limite derecho
 ;#####################################################################################################
 Print_255_Terminated_with_line_wrap:
 LD A, (DE)											; Get the character
 CP 255												; CP with 255
 RET Z												; Ret if it is zero
+PUSH BC												; preserva BC
 RST 0x10											; Otherwise print the character
-INC DE												; Inc to the next character in the string
-JR Print_255_Terminated								; Loop
+LD HL, ROM_PRINT_CURRENT_COLUMN						; apunta al indice horizontal de print
+LD A, (HL)											; carga en A
+POP BC												; restaura BC
 
+CP C												; compara con el limite derecho
+JR C, Retorno_carro									; si es menor (la coordenada va en sentido decreciente) salta a retorno de carro
+JR Continua_Print_255_Terminated_with_line_wrap		; si no, salta a continuar
+Retorno_carro:
+PUSH BC												; preserva BC
+LD A, AT											; carga el código AT
+RST 0x10											; lo imprime
+
+LD HL, ROM_PRINT_CURRENT_LINE						; carga el puntero a la linea actual de print
+LD B, (HL)											; carga el valor en B
+LD A, 24
+SUB B
+
+INC A												; sube una línea
+RST 0x10											; imprime
+
+POP BC												; restaura BC
+LD A, B												; carga en A el valor de la columna
+RST 0x10											; imprime
+
+Continua_Print_255_Terminated_with_line_wrap:
+INC DE												; Inc to the next character in the string
+JR Print_255_Terminated_with_line_wrap				; Loop
 
 ;#####################################################################################################
 ;#####				Print_city_text
@@ -481,7 +510,10 @@ LD DE, City_descriptions
 LD B, (HL)
 LD C, 0
 call Select_elemento
-CALL Print_255_Terminated
+;CALL Print_255_Terminated
+LD B, 17
+LD C, 3
+CALL Print_255_Terminated_with_line_wrap
 RET
 
 org 65368
