@@ -319,10 +319,10 @@ LD A, (HL)
 LD IYL, A
 
 LD A, 88
-LD C, 3
+LD C, 1
 
 CALL load_screen
 LD A, 11
-LD C, 3
+LD C, 1
 CALL Copiar_atributos
 RET

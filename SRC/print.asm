@@ -10,6 +10,7 @@ ROM_PRINT_CURRENT_LINE		EQU 23689				; valor para hacer retorno de carro
 ;
 ; PRINT control codes - work with ROM_PRINT and RST 0x10
 ;
+RETORNO_DE_CARRO			EQU 13
 INK                     	EQU 0x10
 PAPER                   	EQU 0x11
 FLASH                   	EQU 0x12
@@ -32,7 +33,8 @@ ESQUINA_INFERIOR_DER		EQU 151
 RIO_JAN						EQU 26
 TAM_WEEKDAYS				EQU 4
 Menu:						DB AT, 1, 0, PAPER, 7, INK, 2, " G", INK, 0, "ame  ", INK, 2, "O", INK, 0, "ptions  ", INK, 2, "A", INK, 0, "cme  ", INK, 2, "D", INK, 0, "ossiers ",255
-City_print_config:			DB AT, 5, 1, PAPER, 0, INK, 7, 255
+City_print_config:			DB AT, 4, 1, PAPER, 0, INK, 7, 255
+City_print_config2:			DB AT, 5, 1, PAPER, 0, INK, 7, 255
 Hour_print_config:			DB AT, 7, 1, 255
 Button_depart_1_3			DB AT, 20, 18, 152, 153, 154, 255
 Button_depart_2_3			DB AT, 21, 19, 155, 255
@@ -47,7 +49,7 @@ Button_crime_3_3			DB AT, 0, 28, 62, 63, 96, 255
 
 Window_x_inicial:			DB 0	; La posición X de la esquina superior izquierda
 Window_y_inicial:			DB 3	; La posición Y de la esquina superior izquierda
-Window_x_final_m_1:			DB 15	; La posición X de la esquina inferior derecha
+Window_x_final_m_1:			DB 11	; La posición X de la esquina inferior derecha
 Window_y_final_m_1:			DB 8	; La posición Y de la esquina inferior derecha
 Caracter_relleno:			DB 143	; El caracter para rellenar el recuadro
 
@@ -73,7 +75,7 @@ ld (hl),3
 ld hl, Window_y_final_m_1
 ld (hl),17
 ld hl, Window_x_inicial
-ld (hl),16					
+ld (hl),12					
 ld hl, Window_x_final_m_1
 ld (hl),31					
 call Pinta_recuadro
@@ -428,6 +430,10 @@ Print_255_Terminated_with_line_wrap:
 LD A, (DE)											; Get the character
 CP 255												; CP with 255
 RET Z												; Ret if it is zero
+
+CP RETORNO_DE_CARRO
+JR Z, Retorno_carro
+
 PUSH BC												; preserva BC
 RST 0x10											; Otherwise print the character
 LD HL, ROM_PRINT_CURRENT_COLUMN						; apunta al indice horizontal de print
@@ -437,6 +443,9 @@ POP BC												; restaura BC
 CP C												; compara con el limite derecho
 JR C, Retorno_carro									; si es menor (la coordenada va en sentido decreciente) salta a retorno de carro
 JR Continua_Print_255_Terminated_with_line_wrap		; si no, salta a continuar
+
+JR NZ, Continua_Print_255_Terminated_with_line_wrap
+
 Retorno_carro:
 PUSH BC												; preserva BC
 LD A, AT											; carga el código AT
@@ -444,11 +453,10 @@ RST 0x10											; lo imprime
 
 LD HL, ROM_PRINT_CURRENT_LINE						; carga el puntero a la linea actual de print
 LD B, (HL)											; carga el valor en B
-LD A, 24
-SUB B
-
-INC A												; sube una línea
-RST 0x10											; imprime
+LD A, 24											; carga 24 en A para calcular la línea
+SUB B												; A <- ( 24-B )
+INC A												; incrementa A - baja una línea
+RST 0x10											; imprime y posiciona el cursor
 
 POP BC												; restaura BC
 LD A, B												; carga en A el valor de la columna
@@ -466,13 +474,6 @@ LD HL, CurrentCity
 LD C, 0 											; PARA MEJORAR LA LEGIBILIDAD EN DEPURACiÓN
 LD B, (HL)											; carga en B EL ÍNDICE DE la ciudad actual
 INC B												; suma 1 al índice de ciudad
-LD A,B												; carga el dato en el registro A
-CP RIO_JAN											; Chequea si es Rio de Janeiro
-JR Z, Print_city_text_loop							; Si es esa
-LD A,32												; carga un espacio en el registro A
-RST 0x10											; Pinta el caracter
-
-Print_city_text_loop:
 LD DE, Cities										; carga en DE el puntero a ciudades
 CALL Select_elemento
 CALL Print_255_Terminated
@@ -502,7 +503,7 @@ LD A, AT                							; AT control character
 RST 0x10
 LD A, 4                 							; Y
 RST 0x10
-LD A, 17                							; X
+LD A, 13                							; X
 RST 0x10
 
 LD HL, CurrentCity
@@ -511,7 +512,7 @@ LD B, (HL)
 LD C, 0
 call Select_elemento
 ;CALL Print_255_Terminated
-LD B, 17
+LD B, 13
 LD C, 3
 CALL Print_255_Terminated_with_line_wrap
 RET
