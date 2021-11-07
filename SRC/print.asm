@@ -36,15 +36,15 @@ Menu:						DB AT, 1, 0, PAPER, 7, INK, 2, " G", INK, 0, "ame  ", INK, 2, "O", IN
 City_print_config:			DB AT, 4, 1, PAPER, 0, INK, 7, 255
 City_print_config2:			DB AT, 5, 1, PAPER, 0, INK, 7, 255
 Hour_print_config:			DB AT, 7, 1, 255
-Button_depart_1_3			DB AT, 20, 18, 152, 153, 154, 255
-Button_depart_2_3			DB AT, 21, 19, 155, 255
-Button_depart_3_3			DB AT, 0, 18, 156, 157, 158, 255
-Button_lupa_1_3				DB AT, 20, 24, 159, 160, 255
-Button_lupa_2_3				DB AT, 21, 23, 161, 162, 123, 255
-Button_lupa_3_3				DB AT, 0, 23, 124, 125, 126, 255
-Button_crime_1_3			DB AT, 20, 28, 35, 36, 37, 255
-Button_crime_2_3			DB AT, 21, 28, 38, 60, 61, 255
-Button_crime_3_3			DB AT, 0, 28, 62, 63, 96, 255
+Button_depart_1_3:			DB AT, 20, 18, 152, 153, 154, 255
+Button_depart_2_3:			DB AT, 21, 19, 155, 255
+Button_depart_3_3:			DB AT, 0, 18, 156, 157, 158, 255
+Button_lupa_1_3:			DB AT, 20, 24, 159, 160, 255
+Button_lupa_2_3:			DB AT, 21, 23, 161, 162, 123, 255
+Button_lupa_3_3:			DB AT, 0, 23, 124, 125, 126, 255
+Button_crime_1_3:			DB AT, 20, 28, 35, 36, 37, 255
+Button_crime_2_3:			DB AT, 21, 28, 38, 60, 61, 255
+Button_crime_3_3:			DB AT, 0, 28, 62, 63, 96, 255
 
 
 Window_x_inicial:			DB 0	; La posición X de la esquina superior izquierda
@@ -55,157 +55,22 @@ Caracter_relleno:			DB 143	; El caracter para rellenar el recuadro
 
 ;#####################################################################################################
 ;#####				Pinta_pantalla_juego
-;#####				886C puntero temporal
 ;#####################################################################################################
 Pinta_pantalla_juego:
-CALL ROM_CLS            ; Clear screen and open Channel 2 (Screen)
-LD DE, Menu
-CALL Print_255_Terminated
-call Pinta_recuadro
 
-ld hl, Window_y_inicial
-ld (hl),10					; La posición Y de la esquina superior izquierda
-ld hl, Window_y_final_m_1
-ld (hl),21					; La posición Y de la esquina inferior derecha
-call Pinta_recuadro
-
-;;;; Panel derecho
-ld hl, Window_y_inicial
-ld (hl),3					
-ld hl, Window_y_final_m_1
-ld (hl),17
-ld hl, Window_x_inicial
-ld (hl),12					
-ld hl, Window_x_final_m_1
-ld (hl),31					
-call Pinta_recuadro
-
-
-;;;; Boton 1
-ld hl, Caracter_relleno
-ld (hl),32
-ld hl, Window_y_inicial
-ld (hl),19					
-
-ld hl, Window_y_final_m_1
-ld (hl),21
-ld hl, Window_x_inicial
-ld (hl),17					
-ld hl, Window_x_final_m_1
-ld (hl),21
-call Pinta_recuadro
-
-LD DE, Button_depart_1_3
-CALL Print_255_Terminated
-
-LD DE, Button_depart_2_3
-CALL Print_255_Terminated
-
-LD A, 1
-PUSH BC
-PUSH DE
-CALL ROM_OPEN_CHANNEL
-POP DE
-POP BC
-
-LD DE, Button_depart_3_3
-CALL Print_255_Terminated
-
-LD A, 2
-CALL ROM_OPEN_CHANNEL
-
-;;;; Boton 2
-ld hl, Window_y_final_m_1
-ld (hl),21
-ld hl, Window_x_inicial
-ld (hl),22					
-ld hl, Window_x_final_m_1
-ld (hl),26					
-call Pinta_recuadro
-
-LD DE, Button_lupa_1_3
-CALL Print_255_Terminated
-
-LD DE, Button_lupa_2_3
-CALL Print_255_Terminated
-
-LD A, 1
-PUSH BC
-PUSH DE
-CALL ROM_OPEN_CHANNEL
-POP DE
-POP BC
-
-
-LD DE, Button_lupa_3_3
-CALL Print_255_Terminated
-
-LD A, 2
-CALL ROM_OPEN_CHANNEL
-
-;;;; Boton 3
-ld hl, Window_y_final_m_1
-ld (hl),21
-ld hl, Window_x_inicial
-ld (hl),27					
-ld hl, Window_x_final_m_1
-ld (hl),31					
-call Pinta_recuadro
-
-LD DE, Button_crime_1_3
-CALL Print_255_Terminated
-
-LD DE, Button_crime_2_3
-CALL Print_255_Terminated
-
-LD A, 1
-PUSH BC
-PUSH DE
-CALL ROM_OPEN_CHANNEL
-POP DE
-POP BC
-
-LD DE, Button_crime_3_3
-CALL Print_255_Terminated
-
-LD A, 2
-CALL ROM_OPEN_CHANNEL
-
+LD DE, Menu							; Carga en el registro DE la dirección de la cadena del menú superior
+CALL Print_255_Terminated			; Pinta el menú superior
+CALL Pinta_todos_recuadros			; Pinta los tres recuadros
+CALL Pinta_boton_Elegir_destino		; Pinta el botón con el avión
+CALL Pinta_boton_Lupa				; Pinta el boton de la lupa para las pistas
+CALL Pinta_boton_Ordenador			; Pinta el boton del ordenador para la orden de arresto
 LD DE, City_print_config
-call Print_255_Terminated
+CALL Print_255_Terminated
 CALL Print_city_text
 CALL Print_city_desc
-
-; PINTA DIA DE LA SEMANA
-LD DE, Hour_print_config
-call Print_255_Terminated
-LD A,32
-RST 0x10
-LD DE, Weekdays
-LD HL, CurrentWeekday
-LD A, (HL)
-print_weekday_loop:
-DEC A
-OR A
-JR Z, print_weekday_end
-LD B,0
-LD C,TAM_WEEKDAYS ; TAMAÑO DE LOS DÍAS DE LA SEMANA
-EX  DE,HL
-ADD HL, BC
-EX  DE,HL
-jr print_weekday_loop
-print_weekday_end:
-CALL Print_255_Terminated
-LD A,32
-RST 0x10
-LD DE, CurrentHour
-CALL Print_255_Terminated
-
-
-
-Call Dibuja_Linea
-
-ret
+CALL Print_weekday_and_hour
+CALL Dibuja_Linea
+RET
 
 
 ;#####################################################################################################
@@ -294,10 +159,6 @@ LD A, B
 CP D
 JR NZ, Pinta_recuadro_fila_enmedio
 
-
-;LD A,13
-;RST 0X10
-
 ;; ÚLTIMA FILA
 
 LD HL, Window_x_inicial
@@ -307,8 +168,6 @@ INC B
 LD A, B
 CP 22
 JR C, Pinta_recuadro_no_cambiar_canal
-
-
 
 LD A, 1
 PUSH BC
@@ -322,8 +181,6 @@ LD HL, Window_y_final_m_1
 LD A, (HL)
 SUB 21
 LD (HL),A
-
-
 
 ; fila extra en CANAL 1
 LD A, AT
@@ -389,8 +246,6 @@ JR NZ, Pinta_recuadro_borde_inferior
 LD A, ESQUINA_INFERIOR_DER
 RST 0x10
 
-
-
 LD A, 2
 CALL ROM_OPEN_CHANNEL
 
@@ -416,7 +271,9 @@ Print_255_Terminated:
 LD A, (DE)											; Get the character
 CP 255												; CP with 255
 RET Z												; Ret if it is zero
+PUSH DE
 RST 0x10											; Otherwise print the character
+POP DE
 INC DE												; Inc to the next character in the string
 JR Print_255_Terminated								; Loop
 
@@ -435,10 +292,14 @@ CP RETORNO_DE_CARRO
 JR Z, Retorno_carro
 
 PUSH BC												; preserva BC
+PUSH DE
+PUSH HL
 RST 0x10											; Otherwise print the character
+POP HL
+POP DE
+POP BC												; restaura BC
 LD HL, ROM_PRINT_CURRENT_COLUMN						; apunta al indice horizontal de print
 LD A, (HL)											; carga en A
-POP BC												; restaura BC
 
 CP C												; compara con el limite derecho
 JR C, Retorno_carro									; si es menor (la coordenada va en sentido decreciente) salta a retorno de carro
@@ -466,10 +327,173 @@ Continua_Print_255_Terminated_with_line_wrap:
 INC DE												; Inc to the next character in the string
 JR Print_255_Terminated_with_line_wrap				; Loop
 
+
+;#####################################################################################################
+;#####				Pinta_boton_Elegir_destino
+;#####################################################################################################
+Pinta_boton_Elegir_destino:
+LD HL, Caracter_relleno
+LD (HL),32
+
+LD HL, Window_y_inicial
+LD (HL),19					
+LD HL, Window_y_final_m_1
+LD (HL),21
+LD HL, Window_x_inicial
+LD (HL),17					
+LD HL, Window_x_final_m_1
+LD (HL),21
+CALL Pinta_recuadro
+
+LD DE, Button_depart_1_3
+CALL Print_255_Terminated
+
+LD DE, Button_depart_2_3
+CALL Print_255_Terminated
+
+LD A, 1
+PUSH BC
+PUSH DE
+CALL ROM_OPEN_CHANNEL
+POP DE
+POP BC
+
+LD DE, Button_depart_3_3
+CALL Print_255_Terminated
+
+LD A, 2
+CALL ROM_OPEN_CHANNEL
+RET
+
+;#####################################################################################################
+;#####				Pinta_boton_Lupa
+;#####################################################################################################
+Pinta_boton_Lupa:
+ld hl, Window_y_final_m_1
+ld (hl),21
+ld hl, Window_x_inicial
+ld (hl),22					
+ld hl, Window_x_final_m_1
+ld (hl),26					
+call Pinta_recuadro
+
+LD DE, Button_lupa_1_3
+CALL Print_255_Terminated
+
+LD DE, Button_lupa_2_3
+CALL Print_255_Terminated
+
+LD A, 1
+PUSH BC
+PUSH DE
+CALL ROM_OPEN_CHANNEL
+POP DE
+POP BC
+
+LD DE, Button_lupa_3_3
+CALL Print_255_Terminated
+
+LD A, 2
+CALL ROM_OPEN_CHANNEL
+RET
+
+;#####################################################################################################
+;#####				Pinta_boton_Ordenador
+;#####################################################################################################
+Pinta_boton_Ordenador:
+LD HL, Window_y_final_m_1
+LD (HL),21
+LD HL, Window_x_inicial
+LD (HL),27					
+LD HL, Window_x_final_m_1
+LD (HL),31					
+CALL Pinta_recuadro
+
+LD DE, Button_crime_1_3
+CALL Print_255_Terminated
+
+LD DE, Button_crime_2_3
+CALL Print_255_Terminated
+
+LD A, 1
+PUSH BC
+PUSH DE
+CALL ROM_OPEN_CHANNEL
+POP DE
+POP BC
+
+LD DE, Button_crime_3_3
+CALL Print_255_Terminated
+
+LD A, 2
+CALL ROM_OPEN_CHANNEL
+RET
+
+
+;#####################################################################################################
+;#####				Print_weekday_and_hour
+;#####################################################################################################
+Print_weekday_and_hour:
+
+LD DE, Hour_print_config
+call Print_255_Terminated
+LD A,32
+RST 0x10
+LD DE, Weekdays
+LD HL, CurrentWeekday
+LD A, (HL)
+print_weekday_loop:
+DEC A
+OR A
+JR Z, print_weekday_end
+LD B,0
+LD C,TAM_WEEKDAYS ; TAMAÑO DE LOS DÍAS DE LA SEMANA
+EX  DE,HL
+ADD HL, BC
+EX  DE,HL
+jr print_weekday_loop
+print_weekday_end:
+CALL Print_255_Terminated
+
+LD A,32
+RST 0x10
+LD DE, CurrentHour
+CALL Print_255_Terminated
+RET
+
+
+;#####################################################################################################
+;#####				Pinta_todos_recuadros
+;#####				Para el primero, asume toda la configuración por defecto
+;#####################################################################################################
+Pinta_todos_recuadros:
+
+CALL Pinta_recuadro					; Pinta el primer recuadro para la ciudad, el día y la hora con todos los valores por defecto (0,3)->(10,7)
+
+LD HL, Window_y_inicial				; Carga en HL el puntero a la variable Y inicial de la ventana
+LD (HL),10							; La posición Y de la esquina superior izquierda
+LD HL, Window_y_final_m_1			; Carga en HL el puntero a la variable Y final más uno de la ventana
+LD (HL),21							; La posición Y de la esquina inferior derecha
+call Pinta_recuadro					; Pinta el segundo recuadro para la imagen de la ciudad
+
+;;;; Panel derecho
+ld hl, Window_y_inicial				; Carga en HL el puntero a la variable Y inicial de la ventana
+ld (hl),3					        ; Carga en la variable el valor
+ld hl, Window_y_final_m_1           ; Carga en HL el puntero a la variable Y final más uno de la ventana
+ld (hl),17                          ; Carga en la variable el valor
+ld hl, Window_x_inicial             ; Carga en HL el puntero a la variable Y inicial de la ventana
+ld (hl),12							; Carga en la variable el valor
+ld hl, Window_x_final_m_1			; Carga en HL el puntero a la variable Y final más uno de la ventana
+ld (hl),31							; Carga en la variable el valor
+call Pinta_recuadro					; Pinta el tercer recuadro para la descripción de la ciudad
+
+ret
+
 ;#####################################################################################################
 ;#####				Print_city_text
 ;#####################################################################################################
 Print_city_text:
+
 LD HL, CurrentCity
 LD C, 0 											; PARA MEJORAR LA LEGIBILIDAD EN DEPURACiÓN
 LD B, (HL)											; carga en B EL ÍNDICE DE la ciudad actual
@@ -515,6 +539,19 @@ call Select_elemento
 LD B, 13
 LD C, 3
 CALL Print_255_Terminated_with_line_wrap
+RET
+
+Restablecer_valores_por_defecto_recuadros:
+LD HL, Window_x_inicial
+LD (HL), 0
+LD HL, Window_y_inicial
+LD (HL), 3
+LD HL, Window_x_final_m_1
+LD (HL), 11
+LD HL, Window_y_final_m_1
+LD (HL), 8
+LD HL, Caracter_relleno
+LD (HL), 143
 RET
 
 org 65368

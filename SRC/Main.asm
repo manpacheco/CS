@@ -17,30 +17,21 @@ ld (ix), l
 ld ix, 23607
 ld (ix), h
 
-MainLoop:
-; call PrintSprite8x8At
-; call ScanAllKeys
+CALL ROM_CLS            ; Clear screen and open Channel 2 (Screen)
 
-
-; include "Game.asm"
-; include "Video.asm"
-; include "Sprite.asm"
-; include "Controls.asm"
-; include "Display.asm"
-
-
-
-
-;
-; Print the string TEXT2 using my zero-terminated string print routine
-;
 CALL Pinta_pantalla_juego
+CALL Pinta_imagen_ciudad
 
-Call Pinta_imagen_ciudad
-
-end_loop:
-jr end_loop
-ret
+MainLoop:
+ld a,5 ; 1 is the code for blue
+out (254),a
+HALT
+CALL ScanAllKeys
+ld a,1 ; 1 is the code for blue
+out (254),a
+HALT
+jr MainLoop
+RET
 
 Pantalla:
 incbin "From_01_to_06.scr.zx0"
@@ -55,6 +46,7 @@ incbin "From_25_to_30.scr.zx0"
 PantallaWorld:
 incbin "world.scr.zx0"
 include "dzx0_standard.asm"
+include "Controls.asm"
 Carton_bold_font:
 include "Carton_bold_font.asm"
 include "screens.asm"

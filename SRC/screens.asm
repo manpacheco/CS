@@ -14,14 +14,15 @@ CITY_PICTURE_HEIGHT_IN_PIXELS EQU CITY_PICTURE_HEIGHT_IN_CHARACTERS*8 ; 96
 ;; A: Y pixels shift down
 ;; C: X Characters shift left
 ;; IYL si es 0 fila de arriba, >0 fila de abajo
+;; Sobreescribe: B, HL
 
 load_screen:
-; offset horizontal en destino
+; Se calcula el offset horizontal en destino
 LD B,0									; Se descarta la parte alta de BC
 LD HL, LIVE_SCREEN_ADDRESS				; Se carga en el registro HL la dirección de la memoria de video que hace de base de destino
 ADD HL, BC								; Se le suman a la dirección de la memoria de vídeo los caracteres de offset en horizontal (en el registro C)
 
-; offset vertical en destino
+; Se calcula el offset vertical en destino
 baja_una_scanline:
 OR A									; examina el registro A
 JR z,no_bajar_mas						; si es 0, entonces deja de iterar	
@@ -39,32 +40,26 @@ LD A, (HL)								; Carga en A el offset horizontal de origen
 LD HL, UNZIPPED_SCREEN_ADDRESS			; Como base de la dirección de lectura se usa la constante UNZIPPED_SCREEN_ADDRESS
 ADD A, L								; Suma a la dirección de lectura el offset horizontal de origen
 
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; SEGUIR POR AQUÍ ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-EX AF, AF'							;Preserva AF en el alternativo
-LD A, IYL							; Carga en el registro A el valor de YHL (que contiene el parámetro)
-OR A								; Es 0?
-JR Z, SIN_AJUSTE_MITAD_TERMINADO	; Si es cero, no hagas nada y salta
-; TESTS
+EX AF, AF'								; Preserva AF en el alternativo
+LD A, IYL								; Carga en el registro A el valor de YHL (que contiene el parámetro)
+OR A									; Es 0?
+JR Z, SIN_AJUSTE_MITAD_TERMINADO		; Si es cero, no hagas nada y salta
 EX AF, AF'								; Restaura AF desde el alternativo
 ADD A, 128								; Si no es 0, habrá que sumar las el offset de mitad de pantalla
-										; 12 filas * 8 scanlines * 32 columnassuma 128 al registro A que irá a la parte baja
-; FIN TESTS								; 1152= 100 (8) en H y 1000 0000 (128) en L
+										; 12 filas * 8 scanlines * 32 columnas suma 128 al registro A que irá a la parte baja
+										; 1152= 100 (8) en H y 1000 0000 (128) en L
 
 LD L, A									; Lleva el resultado a la parte baja de HL
-; TESTS
 LD A, H									; Carga en el registro A la parte alta de la dirección (en HL)
 ADD A, 8								; le suma 8 a la parte alta (para avanzar al siguiente tercio de pantalla)
 LD H, A									; carga en la parte alta el resultado que queda en el registro A
-; FIN TESTS
 JR AJUSTE_MITAD_TERMINADO
 SIN_AJUSTE_MITAD_TERMINADO:
 EX AF, AF'								; Restaura AF desde el alternativo
 LD L, A									; Lleva el resultado a la parte baja de HL
 AJUSTE_MITAD_TERMINADO:
-
 									
 LD A, CITY_PICTURE_HEIGHT_IN_PIXELS		; Carga en el registro A la altura de la imagen pegada como contador de iteraciones del bucle externo
-
 LD IYH, 0								; carga en IY las 8 iteraciones de la misma línea
 LD IYL, 8								; carga en IY las 8 iteraciones de la misma línea
 PUSH HL									; preserva HL en ix
@@ -134,7 +129,7 @@ PUSH HL									; Se pone HL en la pila
 POP IX									; Se carga en el registro IX
 JR fin_postprocesamiento				; salta al final
 
-continuar_postprocesamiento:			;$8833
+continuar_postprocesamiento:			
 POP HL									; Recupera del valor de HL
 INC H									; Incrementa la parte alta (avanza una scanline)
 fin_postprocesamiento:
@@ -142,7 +137,7 @@ fin_postprocesamiento:
 DEC A									; Decrementa A
 OR A									; OR de comparación
 JR NZ, load_screen_loop					; Si no es 0, continúa iterando
-
+load_screen_end:
 ret
 
 ;#####################################################################################################
@@ -252,77 +247,100 @@ RET
 
 ;#####################################################################################################
 ;#####				Pinta_imagen_ciudad
+;#####				Lee: CurrentCity, Pantalla, Pantalla0712, Pantalla1318, Pantalla1924, Pantalla2530
+;#####				Aux_screen_vertical_offset
+
+;#####				Usa constantes: UNZIPPED_SCREEN_ADDRESS
+;#####				Sobreescribe: AF, C, DE, HL, IYL
 ;#####################################################################################################
 Pinta_imagen_ciudad:
-LD HL, CurrentCity
-LD A, (HL)
-
-LD DE, Pantalla
-CP 7
-JR C, FinSaltosPantalla
-LD DE, Pantalla0712
-CP 13
-JR C, FinSaltosPantalla
-LD DE, Pantalla1318
-CP 19
-JR C, FinSaltosPantalla
-LD DE, Pantalla1924
-CP 25
-JR C, FinSaltosPantalla
-LD DE, Pantalla2530  
-
+												
+LD HL, CurrentCity								; Carga en HL el puntero a la ciudad actual
+LD A, (HL)										; Carga en A el dato de la ciudad actual
+LD DE, Pantalla									; Carga en el registro DE el puntero a Pantalla
+												;(la dirección de memoria donde empieza la primera pantalla en formato comprimido)
+CP 7											; Compara con la ciudad actual con 7
+JR C, FinSaltosPantalla							; Si es menor que 7 [0,6] , entonces termina
+LD DE, Pantalla0712								; Si es mayor o igual que 7, entonces carga en el registro DE el puntero a Pantalla0712
+												;(segunda pantalla en formato comprimido)
+CP 13											; Compara con la ciudad actual con 13
+JR C, FinSaltosPantalla                         ; Si es menor que 13 [7,12] , entonces termina
+LD DE, Pantalla1318                             ; Si es mayor o igual que 7, entonces carga en el registro DE el puntero a Pantalla1318
+												;(tercera pantalla en formato comprimido)
+CP 19											; Compara con la ciudad actual con 19
+JR C, FinSaltosPantalla							; Si es menor que 19 [13,18] , entonces termina	
+LD DE, Pantalla1924                             ; Si es mayor o igual que 19, entonces carga en el registro DE el puntero a Pantalla1924
+												;(cuarta pantalla en formato comprimido)
+CP 25											; Compara con la ciudad actual con 25
+JR C, FinSaltosPantalla                         ; Si es menor que 25 [13,18] , entonces termina	
+LD DE, Pantalla2530                             ; Si es mayor o igual que 19, entonces carga en el registro DE el puntero a Pantalla1924
+												;(cuarta pantalla en formato comprimido)
 FinSaltosPantalla:
-EX DE, HL
-LD    DE, UNZIPPED_SCREEN_ADDRESS
-call dzx0_standard
+EX DE, HL										; Pasa DE (la dirección de la pantalla comprimida) a HL
+LD DE, UNZIPPED_SCREEN_ADDRESS					; Carga en DE la dirección de memoria donde se puede volcar la pantalla descomprimida
+call dzx0_standard								; llama a la rutina de descompresión
 
-LD HL, CurrentCity
-LD A, (HL)
-LD HL, Aux_screen_vertical_offset
-DEC A
 
-MODULO_CURRENT_CITY:
-CP 6
-JR C, FIN_MODULO_CURRENT_CITY
-SUB 6
-JR MODULO_CURRENT_CITY
-FIN_MODULO_CURRENT_CITY:
 
-CP 3
-JR NC, Fila_inferior
-LD (HL), 0
-JR Selecciona_columna
+LD HL, CurrentCity								; Carga en HL el puntero a la ciudad actual
+LD A, (HL)										; carga en A el dato de la ciudad actual
+DEC A											; Se decrementa la ciudad (el HQ no tiene pantalla)
+LD HL, Aux_screen_vertical_offset				; carga en HL el puntero al offset vertical de la pantalla 
+												; el dato supuestamente valdrá 0 o 128
+												
+
+
+Modulo_CurrentCity:
+CP 6											; Compara la ciudad con 6
+JR C, Fin_Modulo_CurrentCity					; Si es menor a 6
+SUB 6											; resta 6
+JR Modulo_CurrentCity							; salta a hacer otra iteración
+Fin_Modulo_CurrentCity:						
+
+
+
+;;; HASTA AQUÍ BIEN
+CP 3											; Compara el dato anterior con 3
+JR NC, Fila_inferior							; Si es mayor o igual a tres, salta a fila inferior
+LD (HL), 0										; si no, en el offset vertical de la pantalla carga 0
+JR Selecciona_columna							; y salta al paso siguiente
 Fila_inferior:
-LD (HL), 128
-SUB 3
+LD (HL), 128									; Si era mayor o igual a tres, en el offset vertical de la pantalla carga 128
+SUB 3											; y resta 3 para hacer que el número esté en el rango [0,2]
+
 
 
 Selecciona_columna:
-LD HL, Aux_screen_horizontal_offset
-CP 2
-JR Z, Columna_20
-CP 1
-JR Z, Columna_10
-JR Columna_0
+LD HL, Aux_screen_horizontal_offset				; Carga en HL el puntero al offset horizontal
+CP 2											; Compara el registro A ( que traía el offset vertical en el rango [0,2] ) con 2 
+JR Z, Columna_20								; Si es igual a 2, salta a columna_20
+CP 1											; Si no, compara con 1
+JR Z, Columna_10								; Si es igual a 1, salta a columna_10
+JR Columna_0									; Si no es igual a 1 (en teoría es igual a 0) entonces salta a columna 0
 Columna_20:
-LD (HL), 20
-JR Fin_seleccion_columna
+LD (HL), 20										; Carga en el offset horizontal el valor 20
+JR Fin_seleccion_columna						; salta al final de la selección de columna
 Columna_10:
-LD (HL), 10
-JR Fin_seleccion_columna
+LD (HL), 10										; Carga en el offset horizontal el valor 10
+JR Fin_seleccion_columna                        ; salta al final de la selección de columna
 Columna_0:
-LD (HL), 0
+LD (HL), 0										; Carga en el offset horizontal el valor 0
 Fin_seleccion_columna:
 
-LD HL, Aux_screen_vertical_offset
-LD A, (HL)
-LD IYL, A
+LD HL, Aux_screen_vertical_offset				; Carga en HL el puntero al offset vertical
+LD A, (HL)										; Carga en el registro A el dato del offset vertical
 
-LD A, 88
-LD C, 1
+push IY
+LD IYL, A										; Carga en IYL el offset vertical para pasarlo como parámetro
+;jp FINAL_Pinta_imagen_ciudad
 
-CALL load_screen
+LD A, 88										; Carga en A para pasar el parámetro (Y pixels shift down)
+LD C, 1											; Carga en C para pasar el parámetro (X Characters shift left)
+
+CALL load_screen								; Llama a la función de dibujar la pantalla
 LD A, 11
 LD C, 1
 CALL Copiar_atributos
+pop IY
+FINAL_Pinta_imagen_ciudad:
 RET
