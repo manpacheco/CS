@@ -298,14 +298,14 @@ RST 0x10											; Otherwise print the character
 POP HL
 POP DE
 POP BC												; restaura BC
+
 LD HL, ROM_PRINT_CURRENT_COLUMN						; apunta al indice horizontal de print
 LD A, (HL)											; carga en A
-
 CP C												; compara con el limite derecho
-JR C, Retorno_carro									; si es menor (la coordenada va en sentido decreciente) salta a retorno de carro
-JR Continua_Print_255_Terminated_with_line_wrap		; si no, salta a continuar
-
-JR NZ, Continua_Print_255_Terminated_with_line_wrap
+;JR C, Retorno_carro									; si es menor (la coordenada va en sentido decreciente) salta a retorno de carro
+;JR Continua_Print_255_Terminated_with_line_wrap		; si no, salta a continuar
+JR NC, Continua_Print_255_Terminated_with_line_wrap		; si es menor o igual, salta a continuar							
+JR Retorno_carro										; si es menor (la coordenada va en sentido decreciente) salta a retorno de carro
 
 Retorno_carro:
 PUSH BC												; preserva BC
