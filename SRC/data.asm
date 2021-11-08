@@ -1,6 +1,5 @@
 ; 8000 a 810A
-;Cities: db 255,"Headquarters",255,"New York",255,"Montreal",255,"Mexico City",255,"Lima",255,"Rio de Janeiro",255,"Buenos Aires",255,"Reykjavik",255,"London",255,"Paris",255,"San Marino",255,"Rome",255,"Oslo",255,"Budapest",255,"Athens",255,"Istanbul",255,"Moscow",255,"Baghdad",255,"Cairo",255, "Bamako",255, "Kigali",255, "Moroni",255, "Kathmandu",255,"New Delhi",255,"Colombo",255,"Peking",255,"Tokyo",255,"Bangkok",255,"Singapore",255,"Port Moresby",255,"Sydney",255
-Cities: db 255,"Headquarters",255,"Athens",255,"Baghdad",255,"Bamako",255,"Bangkok",255,"Budapest",255,"Buenos Aires",255,"Cairo",255,"Colombo",255,"Istanbul",255,"Kathmandu",255,"Kigali",255,"Lima",255,"London",255,"Mexico City",255,"Montreal",255,"Moroni",255,"Moscow",255,"New Delhi",255,"New York",255,"Oslo",255,"Paris",255,"Peking",255,"Port Moresby",255,"Reykjavik",255,"Rio de Janeiro",255,"Rome",255,"San Marino",255,"Singapore",255,"Sydney",255,"Tokyo",255
+Cities: db 255,"Headquarters",255,"  Athens",255," Baghdad",255,"  Bamako",255," Bangkok",255," Budapest",255,"  Buenos",13,"  Aires",255,"  Cairo",255," Colombo",255," Istanbul",255,"Kathmandu",255,"  Kigali",255,"   Lima",255,"  London",255,"  Mexico",13,"  City",255," Montreal",255,"  Moroni",255,"  Moscow",255,"New Delhi",255," New York",255,"   Oslo",255,"  Paris",255,"  Peking",255,"   Port",13," Moresby",255,"Reykjavik",255,"  Rio de",13," Janeiro",255,"   Rome",255,"San Marino",255,"Singapore",255," Sydney",255,"  Tokyo",255
 
 ; 810B a 81F1
 ;Countries: db 255,"-",255,"USA",255,"Canada",255,"Mexico",255,"Peru",255,"Brazil",255,"Argentina",255,"Iceland",255,"UK",255,"France",255,"San Marino",255,"Italy",255,"Norway",255,"Hungary",255,"Greece",255,"Turkey",255,"Soviet Union",255,"Iraq",255,"Egypt",255,"Mali",255,"Rwanda",255,"Comoros",255,"Nepal",255,"India",255,"Sri Lanka",255,"China",255,"Japan",255,"Thailand",255,"Singapore",255,"Papua New Guinea",255,"Australia",255
@@ -21,7 +20,7 @@ Suspect: db 99
 ;Screen_source_address_offset db 0 ; 0/10/20
 Aux_screen_horizontal_offset: db 0 ; 0/10/20
 Aux_screen_vertical_offset: db 0 ; 0/128
-CurrentCity: db 25 ; rango [1,30]
+CurrentCity: db 1 ; rango [1,30]
 CurrenCityConfigOffsetX: db 0,10,20,0,10,20
 CurrenCityConfigOffsetY: db 0,0,0,128,128,128
 CurrentCountry: db 28
