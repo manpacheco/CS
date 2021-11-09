@@ -500,11 +500,8 @@ LD B, (HL)											; carga en B EL ÍNDICE DE la ciudad actual
 INC B												; suma 1 al índice de ciudad
 LD DE, Cities										; carga en DE el puntero a ciudades
 CALL Select_elemento
-;CALL Print_255_Terminated
-;#####		parámetro: en el registro B el limite izquierdo
-;#####		parámetro: en el registro C el limite derecho
-LD B, 1
-LD C, 10
+LD B, 1												; parámetro: en el registro B el limite izquierdo
+LD C, 23											; parámetro: en el registro C el limite derecho
 CALL Print_255_Terminated_with_line_wrap
 RET
 
