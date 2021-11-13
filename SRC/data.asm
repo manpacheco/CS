@@ -17,6 +17,8 @@ Weekdays: db "Mon", 255,"Tue",255,"Wed",255,"Thu",255,"Fri",255,"Sat",255,"Sun",
 
 ;Estado actual
 Suspect: db 99
+Cursor: db 1
+Cursor_botones: db Button_depart_x_inicial, Button_lupa_x_inicial, Button_crime_x_inicial
 ;Screen_source_address_offset db 0 ; 0/10/20
 Aux_screen_horizontal_offset: db 0 ; 0/10/20
 Aux_screen_vertical_offset: db 0 ; 0/128

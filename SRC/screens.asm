@@ -141,16 +141,12 @@ load_screen_end:
 ret
 
 ;#####################################################################################################
-;#####				Copiar_atributos
+;#####				obtener_direccion_zona_atributos
 ;#####################################################################################################
-
 ;; A: Y characters shift down (en destino)
 ;; C: X Characters shift left (en destino)
-
-Copiar_atributos:
-
-LD IYL, CITY_PICTURE_HEIGHT_IN_CHARACTERS		; Carga en IYL la altura de la imagen en caracteres
-
+;; SALIDA en HL
+obtener_direccion_zona_atributos:
 ; OFFSET HORIZONTAL EN DESTINO
 LD B,0											; Carga 0 en B
 LD HL, LIVE_ATTRIBUTES_ADDRESS					; Carga en HL la dirección de la zona de los atributos de la pantalla
@@ -165,6 +161,20 @@ LD DE, 32										; Carga 32 en DE
 ADD HL, DE										; Suma 32 a HL (con la dirección de los atributos)
 DJNZ mini_bucle									; Si hay más caracteres que desplazar hacia abajo, salta a nueva iteración
 fin_mini_bucle:
+ret
+
+;#####################################################################################################
+;#####				Copiar_atributos
+;#####################################################################################################
+
+;; A: Y characters shift down (en destino)
+;; C: X Characters shift left (en destino)
+
+Copiar_atributos:
+
+LD IYL, CITY_PICTURE_HEIGHT_IN_CHARACTERS		; Carga en IYL la altura de la imagen en caracteres
+
+call obtener_direccion_zona_atributos
 
 ; OFFSET HORIZONTAL EN ORIGEN
 EXX 											; Intercambia BC, DE, HL con sus alternativos

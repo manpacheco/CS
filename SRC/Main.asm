@@ -21,11 +21,13 @@ CALL ROM_CLS            ; Clear screen and open Channel 2 (Screen)
 
 CALL Pinta_pantalla_juego
 CALL Pinta_imagen_ciudad
+CALL PintaCursor
 
 MainLoop:
 ld a,5 ; 1 is the code for blue
 out (254),a
 HALT
+
 CALL ScanAllKeys
 ld a,1 ; 1 is the code for blue
 out (254),a

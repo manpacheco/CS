@@ -36,22 +36,78 @@ Menu:						DB AT, 1, 0, PAPER, 7, INK, 2, " G", INK, 0, "ame  ", INK, 2, "O", IN
 City_print_config:			DB AT, 4, 1, PAPER, 0, INK, 7, 255
 City_print_config2:			DB AT, 5, 1, PAPER, 0, INK, 7, 255
 Hour_print_config:			DB AT, 7, 1, 255
-Button_depart_1_3:			DB AT, 20, 18, 152, 153, 154, 255
-Button_depart_2_3:			DB AT, 21, 19, 155, 255
-Button_depart_3_3:			DB AT, 0, 18, 156, 157, 158, 255
-Button_lupa_1_3:			DB AT, 20, 24, 159, 160, 255
-Button_lupa_2_3:			DB AT, 21, 23, 161, 162, 123, 255
-Button_lupa_3_3:			DB AT, 0, 23, 124, 125, 126, 255
-Button_crime_1_3:			DB AT, 20, 28, 35, 36, 37, 255
-Button_crime_2_3:			DB AT, 21, 28, 38, 60, 61, 255
-Button_crime_3_3:			DB AT, 0, 28, 62, 63, 96, 255
-
+Buttons_y_inicial			EQU 19
+Buttons_y_final				EQU 21
+Button_depart_x_inicial		EQU 13
+Button_depart_x_final		EQU Button_depart_x_inicial+4
+Button_depart_1_3:			DB AT, 20, Button_depart_x_inicial+1, 152, 153, 154, 255
+Button_depart_2_3:			DB AT, 21, Button_depart_x_inicial+2, 155, 255
+Button_depart_3_3:			DB AT, 0, Button_depart_x_inicial+1, 156, 157, 158, 255
+Button_lupa_x_inicial		EQU 19
+Button_lupa_x_final			EQU Button_lupa_x_inicial+4
+Button_lupa_1_3:			DB AT, 20, Button_lupa_x_inicial+2, 159, 160, 255
+Button_lupa_2_3:			DB AT, 21, Button_lupa_x_inicial+1, 161, 162, 123, 255
+Button_lupa_3_3:			DB AT, 0, Button_lupa_x_inicial+1, 124, 125, 126, 255
+Button_crime_x_inicial		EQU 25
+Button_crime_x_final		EQU Button_crime_x_inicial+4
+Button_crime_1_3:			DB AT, 20, Button_crime_x_inicial+1, 35, 36, 37, 255
+Button_crime_2_3:			DB AT, 21, Button_crime_x_inicial+1, 38, 60, 61, 255
+Button_crime_3_3:			DB AT, 0, Button_crime_x_inicial+1, 62, 63, 96, 255
+Cursor_string:				DB BRIGHT,1,OVER,1,143,143,143
 
 Window_x_inicial:			DB 0	; La posición X de la esquina superior izquierda
 Window_y_inicial:			DB 3	; La posición Y de la esquina superior izquierda
 Window_x_final_m_1:			DB 11	; La posición X de la esquina inferior derecha
 Window_y_final_m_1:			DB 8	; La posición Y de la esquina inferior derecha
 Caracter_relleno:			DB 143	; El caracter para rellenar el recuadro
+
+;#####################################################################################################
+;#####				PintaCursor
+;#####################################################################################################
+PintaCursor:
+
+LD HL, Cursor
+LD A, (HL)
+OR A
+RET Z
+LD C, A
+DEC C
+LD B, 0
+LD HL, Cursor_botones
+ADD HL, BC
+
+LD C, (HL)
+INC C
+
+LD A, Buttons_y_inicial+1
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;LD C, Button_depart_x_inicial+1
+
+;; A: Y characters shift down (en destino)
+;; C: X Characters shift left (en destino)
+
+call obtener_direccion_zona_atributos
+ld b, 3
+PintaCursor_loop:
+push hl
+ld a, 64
+or (hl)
+ld (hl),a
+inc hl
+ld a, 64
+or (hl)
+ld (hl),a
+inc hl
+ld a, 64
+or (hl)
+ld (hl),a
+pop hl
+ld e, 32
+ld d,0
+add hl, de
+djnz PintaCursor_loop
+
+RET
+
 
 ;#####################################################################################################
 ;#####				Pinta_pantalla_juego
@@ -336,13 +392,13 @@ LD HL, Caracter_relleno
 LD (HL),32
 
 LD HL, Window_y_inicial
-LD (HL),19					
+LD (HL),Buttons_y_inicial					
 LD HL, Window_y_final_m_1
-LD (HL),21
+LD (HL),Buttons_y_final
 LD HL, Window_x_inicial
-LD (HL),17					
+LD (HL),Button_depart_x_inicial					
 LD HL, Window_x_final_m_1
-LD (HL),21
+LD (HL),Button_depart_x_final
 CALL Pinta_recuadro
 
 LD DE, Button_depart_1_3
@@ -370,11 +426,11 @@ RET
 ;#####################################################################################################
 Pinta_boton_Lupa:
 ld hl, Window_y_final_m_1
-ld (hl),21
+ld (hl),Buttons_y_final
 ld hl, Window_x_inicial
-ld (hl),22					
+ld (hl),Button_lupa_x_inicial
 ld hl, Window_x_final_m_1
-ld (hl),26					
+ld (hl),Button_lupa_x_final
 call Pinta_recuadro
 
 LD DE, Button_lupa_1_3
@@ -402,11 +458,11 @@ RET
 ;#####################################################################################################
 Pinta_boton_Ordenador:
 LD HL, Window_y_final_m_1
-LD (HL),21
+LD (HL),Buttons_y_final
 LD HL, Window_x_inicial
-LD (HL),27					
+LD (HL),Button_crime_x_inicial					
 LD HL, Window_x_final_m_1
-LD (HL),31					
+LD (HL),Button_crime_x_final					
 CALL Pinta_recuadro
 
 LD DE, Button_crime_1_3
