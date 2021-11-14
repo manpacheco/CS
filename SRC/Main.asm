@@ -21,8 +21,8 @@ CALL ROM_CLS            ; Clear screen and open Channel 2 (Screen)
 
 CALL Pinta_pantalla_juego
 CALL Pinta_imagen_ciudad
-CALL PintaCursor
-
+; CALL PintaCursor
+; call Pinta_impresora
 MainLoop:
 ld a,5 ; 1 is the code for blue
 out (254),a
@@ -49,6 +49,7 @@ PantallaWorld:
 incbin "world.scr.zx0"
 include "dzx0_standard.asm"
 include "Controls.asm"
+include "Sound.asm"
 Carton_bold_font:
 include "Carton_bold_font.asm"
 include "screens.asm"

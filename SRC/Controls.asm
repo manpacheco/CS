@@ -99,12 +99,15 @@ ld bc, ROW_BNM_SymbolShift_Space
 in a, (c)
 rra
 jr c, NothingPressed
-
-
+ld hl, Sound
+ld (hl),1
+call Pinta_impresora
+call Pinta_mensaje_impresora
+ld hl, Sound
+ld (hl),0
 JR ScanFinally
 
 NothingPressed:
 
 ScanFinally:
-
 RET

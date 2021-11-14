@@ -20,6 +20,7 @@ OVER                    	EQU 0x15
 AT                      	EQU 0x16
 TAB                     	EQU 0x17
 CR                      	EQU 0x0C
+PAPER_HOLE_CHARACTER		EQU 59
 CITY_STRING_MAX_LENGTH 		EQU 16
 COUNTRY_STRING_MAX_LENGTH 	EQU 16
 ESQUINA_SUPERIOR_IZQ		EQU 144
@@ -60,6 +61,15 @@ Window_y_inicial:			DB 3	; La posición Y de la esquina superior izquierda
 Window_x_final_m_1:			DB 11	; La posición X de la esquina inferior derecha
 Window_y_final_m_1:			DB 8	; La posición Y de la esquina inferior derecha
 Caracter_relleno:			DB 143	; El caracter para rellenar el recuadro
+
+;#####################################################################################################
+;#####				Borrar_panel_derecho
+;#####################################################################################################
+Borrar_panel_derecho:
+ld hl, Caracter_relleno
+ld (hl), 143
+call Print_panel_derecho
+ret
 
 ;#####################################################################################################
 ;#####				PintaCursor
@@ -105,9 +115,148 @@ ld e, 32
 ld d,0
 add hl, de
 djnz PintaCursor_loop
+RET
+
+
+;#####################################################################################################
+;#####				Pinta_impresora
+;#####################################################################################################
+Pinta_impresora:
+
+Call Borrar_panel_derecho
+
+ld a, PAPER
+rst 0x10
+ld a, 7
+rst 0x10
+ld a, INK
+rst 0x10
+ld a, 0
+rst 0x10
+
+ld d, 32
+ld e, 13
+ld a, 3
+
+Pinta_impresora_vertical_loop:
+
+PUSH AF
+ld a, AT
+rst 0x10
+ld a, e
+inc e
+rst 0x10
+ld a, 14
+rst 0x10
+
+;; EMPIEZA A IMPRIMIR UNA LÍNEA
+ld a, PAPER_HOLE_CHARACTER 
+rst 0x10
+ld b,14
+Pinta_impresora_horizontal_loop:
+ld a, 32 ; espacio
+rst 0x10
+djnz Pinta_impresora_horizontal_loop
+ld a, PAPER_HOLE_CHARACTER
+rst 0x10
+;; FIN IMPRESIÓN DE LÍNEA
+
+POP AF
+dec a
+jr nz, Pinta_impresora_vertical_loop
+
+ld a, PAPER
+rst 0x10
+ld a, 6
+rst 0x10
+
+;;; dibujar guias
+
+ld a, AT
+rst 0x10
+ld a, 15 ; Y
+rst 0x10
+ld a, 14 ; X
+rst 0x10
+ld a, 64 ; Guía impresora
+rst 0x10
+
+ld a, AT
+rst 0x10
+ld a, 15 ; Y
+rst 0x10
+ld a, 29 ; X
+rst 0x10
+ld a, 64 ; Guía impresora
+rst 0x10
+
+
+LD C, 2
+SEGUNDA:
+LD B, 18
+ld a, AT
+rst 0x10
+ld a, e
+inc e
+rst 0x10
+ld a, 13
+rst 0x10
+;; EMPIEZA A IMPRIMIR UNA LÍNEA
+Pinta_impresora_horizontal_loop2:
+
+ld a, 95 ; guIÓN BAJO
+rst 0x10
+djnz Pinta_impresora_horizontal_loop2
+DEC C
+JR nz, SEGUNDA
+;; FIN IMPRESIÓN DE LÍNEA
+
+ld a, AT
+rst 0x10
+ld a, 16 ; Y
+rst 0x10
+ld a, 25 ; X
+rst 0x10
+ld a, OVER
+rst 0x10
+ld a, 1
+rst 0x10
+ld a, 92 ; LED
+rst 0x10
+ld a, 92 ; LED
+rst 0x10
+ld a, 92 ; LED
+rst 0x10
+ld a, OVER
+rst 0x10
+ld a, 0
+rst 0x10
+
 
 RET
 
+;#####################################################################################################
+;#####				Pinta_mensaje_impresora
+;#####################################################################################################
+Pinta_mensaje_impresora:
+ld a, PAPER
+ld b, 15
+ld c, 5
+rst 0x10
+ld a, 7 
+rst 0x10
+ld a, AT
+rst 0x10
+ld a, 15 ; Y
+rst 0x10
+ld a, b ; X
+rst 0x10
+LD DE, Mensajes_impresora
+; call Print_255_Terminated
+;#####		parámetro: en el registro B el limite izquierdo
+;#####		parámetro: en el registro C el limite derecho
+call Print_255_Terminated_with_line_wrap
+RET
 
 ;#####################################################################################################
 ;#####				Pinta_pantalla_juego
@@ -358,8 +507,6 @@ POP BC												; restaura BC
 LD HL, ROM_PRINT_CURRENT_COLUMN						; apunta al indice horizontal de print
 LD A, (HL)											; carga en A
 CP C												; compara con el limite derecho
-;JR C, Retorno_carro									; si es menor (la coordenada va en sentido decreciente) salta a retorno de carro
-;JR Continua_Print_255_Terminated_with_line_wrap		; si no, salta a continuar
 JR NC, Continua_Print_255_Terminated_with_line_wrap		; si es menor o igual, salta a continuar							
 JR Retorno_carro										; si es menor (la coordenada va en sentido decreciente) salta a retorno de carro
 
@@ -380,6 +527,19 @@ LD A, B												; carga en A el valor de la columna
 RST 0x10											; imprime
 
 Continua_Print_255_Terminated_with_line_wrap:
+
+
+ld hl, Sound
+ld a, (hl)
+or a
+JR Z, Print_255_Inc_DE
+
+push bc
+push de
+call Noise
+pop de
+pop bc
+Print_255_Inc_DE:
 INC DE												; Inc to the next character in the string
 JR Print_255_Terminated_with_line_wrap				; Loop
 
@@ -532,7 +692,15 @@ LD HL, Window_y_final_m_1			; Carga en HL el puntero a la variable Y final más 
 LD (HL),21							; La posición Y de la esquina inferior derecha
 call Pinta_recuadro					; Pinta el segundo recuadro para la imagen de la ciudad
 
+call Print_panel_derecho
+
+ret
+
+;#####################################################################################################
+;#####				Print_panel_derecho
+;#####################################################################################################
 ;;;; Panel derecho
+Print_panel_derecho:
 ld hl, Window_y_inicial				; Carga en HL el puntero a la variable Y inicial de la ventana
 ld (hl),3					        ; Carga en la variable el valor
 ld hl, Window_y_final_m_1           ; Carga en HL el puntero a la variable Y final más uno de la ventana
@@ -542,7 +710,6 @@ ld (hl),12							; Carga en la variable el valor
 ld hl, Window_x_final_m_1			; Carga en HL el puntero a la variable Y final más uno de la ventana
 ld (hl),31							; Carga en la variable el valor
 call Pinta_recuadro					; Pinta el tercer recuadro para la descripción de la ciudad
-
 ret
 
 ;#####################################################################################################
