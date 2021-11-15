@@ -247,7 +247,8 @@ ld a, 7
 rst 0x10
 ld a, AT
 rst 0x10
-ld a, 15 ; Y
+;ld a, 15 ; Y
+ld a, 5 ; Y
 rst 0x10
 ld a, b ; X
 rst 0x10
@@ -256,7 +257,80 @@ LD DE, Mensajes_impresora
 ;#####		parámetro: en el registro B el limite izquierdo
 ;#####		parámetro: en el registro C el limite derecho
 call Print_255_Terminated_with_line_wrap
+ld hl, LIVE_SCREEN_ADDRESS+192+14
+ld de, LIVE_SCREEN_ADDRESS+160+14
+call Scroll_up
+ld HL, LIVE_SCREEN_ADDRESS+224+14
+ld DE, LIVE_SCREEN_ADDRESS+192+14
+call Scroll_up
+ld HL, LIVE_SCREEN_ADDRESS+2048+14
+ld DE, LIVE_SCREEN_ADDRESS+224+14
+call Scroll_up
+
+ld bc, 32
+ld ix, LIVE_SCREEN_ADDRESS+2048+0+14
+ld iy, LIVE_SCREEN_ADDRESS+2048-32+14
+ld a, 7
+Pinta_mensaje_loop_scroll:
+add ix, bc
+push ix
+pop hl
+add iy, bc
+push iy
+pop de
+push af
+push bc
+call Scroll_up
+pop bc
+pop af
+dec a
+jr nz, Pinta_mensaje_loop_scroll
+;ld HL, LIVE_SCREEN_ADDRESS+192+14
+;ld DE, LIVE_SCREEN_ADDRESS+160+14
+;call Scroll_up
+;ld HL, LIVE_SCREEN_ADDRESS+192+14
+;ld DE, LIVE_SCREEN_ADDRESS+160+14
+;call Scroll_up
+;ld HL, LIVE_SCREEN_ADDRESS+192+14
+;ld DE, LIVE_SCREEN_ADDRESS+160+14
+;call Scroll_up
+;ld HL, LIVE_SCREEN_ADDRESS+192+14
+;ld DE, LIVE_SCREEN_ADDRESS+160+14
+;call Scroll_up
+;ld HL, LIVE_SCREEN_ADDRESS+192+14
+;ld DE, LIVE_SCREEN_ADDRESS+160+14
+;call Scroll_up
+;ld HL, LIVE_SCREEN_ADDRESS+192+14
+;ld DE, LIVE_SCREEN_ADDRESS+160+14
+;call Scroll_up
+hola:
+jr hola
 RET
+
+;#####################################################################################################
+;#####				Scroll_up
+;#####				Param: HL Dirección de origen
+;#####				Params DE Dirección de destino
+;#####################################################################################################
+Scroll_up:
+ld a,8
+Scroll_bucle_exterior:
+ld b,0
+ld c, 16
+push hl
+push de
+LDIR
+pop de
+pop hl
+push af
+call NextScan
+ex de, hl
+call NextScan
+pop af
+ex de, hl
+dec a
+jr nz, Scroll_bucle_exterior
+ret
 
 ;#####################################################################################################
 ;#####				Pinta_pantalla_juego
