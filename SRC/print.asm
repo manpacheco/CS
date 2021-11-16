@@ -117,6 +117,32 @@ add hl, de
 djnz PintaCursor_loop
 RET
 
+;#####################################################################################################
+;#####				Dibujar_guias
+;#####################################################################################################
+Dibujar_guias:
+ld a, PAPER
+rst 0x10
+ld a, 6
+rst 0x10
+ld a, AT
+rst 0x10
+ld a, 15 ; Y
+rst 0x10
+ld a, 14 ; X
+rst 0x10
+ld a, 64 ; Guía impresora
+rst 0x10
+
+ld a, AT
+rst 0x10
+ld a, 15 ; Y
+rst 0x10
+ld a, 29 ; X
+rst 0x10
+ld a, 64 ; Guía impresora
+rst 0x10
+ret
 
 ;#####################################################################################################
 ;#####				Pinta_impresora
@@ -165,30 +191,9 @@ POP AF
 dec a
 jr nz, Pinta_impresora_vertical_loop
 
-ld a, PAPER
-rst 0x10
-ld a, 6
-rst 0x10
 
-;;; dibujar guias
+call Dibujar_guias
 
-ld a, AT
-rst 0x10
-ld a, 15 ; Y
-rst 0x10
-ld a, 14 ; X
-rst 0x10
-ld a, 64 ; Guía impresora
-rst 0x10
-
-ld a, AT
-rst 0x10
-ld a, 15 ; Y
-rst 0x10
-ld a, 29 ; X
-rst 0x10
-ld a, 64 ; Guía impresora
-rst 0x10
 
 
 LD C, 2
@@ -239,6 +244,7 @@ RET
 ;#####				Pinta_mensaje_impresora
 ;#####################################################################################################
 Pinta_mensaje_impresora:
+
 ld a, PAPER
 ld b, 15
 ld c, 5
@@ -247,16 +253,17 @@ ld a, 7
 rst 0x10
 ld a, AT
 rst 0x10
-;ld a, 15 ; Y
 ld a, 5 ; Y
 rst 0x10
 ld a, b ; X
 rst 0x10
+
 LD DE, Mensajes_impresora
-; call Print_255_Terminated
-;#####		parámetro: en el registro B el limite izquierdo
-;#####		parámetro: en el registro C el limite derecho
 call Print_255_Terminated_with_line_wrap
+ret
+
+Hacer_scroll_papel_impresora:
+
 ld hl, LIVE_SCREEN_ADDRESS+192+14
 ld de, LIVE_SCREEN_ADDRESS+160+14
 call Scroll_up
@@ -267,10 +274,36 @@ ld HL, LIVE_SCREEN_ADDRESS+2048+14
 ld DE, LIVE_SCREEN_ADDRESS+224+14
 call Scroll_up
 
+ld a, PAPER
+rst 0x10
+ld a, 7 
+rst 0x10
+ld a, AT
+RST 0x10
+ld a, 15
+RST 0x10
+ld a, 14
+RST 0x10
+LD A, PAPER_HOLE_CHARACTER                							
+RST 0x10
+ld a, AT
+RST 0x10
+ld a, 15
+RST 0x10
+ld a, 29
+RST 0x10
+LD A, PAPER_HOLE_CHARACTER                							
+RST 0x10
+
+
 ld bc, 32
+push ix
+push iy
 ld ix, LIVE_SCREEN_ADDRESS+2048+0+14
 ld iy, LIVE_SCREEN_ADDRESS+2048-32+14
 ld a, 7
+
+
 Pinta_mensaje_loop_scroll:
 add ix, bc
 push ix
@@ -285,27 +318,16 @@ pop bc
 pop af
 dec a
 jr nz, Pinta_mensaje_loop_scroll
-;ld HL, LIVE_SCREEN_ADDRESS+192+14
-;ld DE, LIVE_SCREEN_ADDRESS+160+14
-;call Scroll_up
-;ld HL, LIVE_SCREEN_ADDRESS+192+14
-;ld DE, LIVE_SCREEN_ADDRESS+160+14
-;call Scroll_up
-;ld HL, LIVE_SCREEN_ADDRESS+192+14
-;ld DE, LIVE_SCREEN_ADDRESS+160+14
-;call Scroll_up
-;ld HL, LIVE_SCREEN_ADDRESS+192+14
-;ld DE, LIVE_SCREEN_ADDRESS+160+14
-;call Scroll_up
-;ld HL, LIVE_SCREEN_ADDRESS+192+14
-;ld DE, LIVE_SCREEN_ADDRESS+160+14
-;call Scroll_up
-;ld HL, LIVE_SCREEN_ADDRESS+192+14
-;ld DE, LIVE_SCREEN_ADDRESS+160+14
-;call Scroll_up
-hola:
-jr hola
+
+pop iy
+pop ix
+call Dibujar_guias
 RET
+;#####################################################################################################
+;#####				FIN_Pinta_mensaje_impresora
+;#####################################################################################################
+
+
 
 ;#####################################################################################################
 ;#####				Scroll_up
