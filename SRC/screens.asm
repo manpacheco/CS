@@ -267,6 +267,8 @@ Pinta_imagen_ciudad:
 												
 LD HL, CurrentCity								; Carga en HL el puntero a la ciudad actual
 LD A, (HL)										; Carga en A el dato de la ciudad actual
+OR A
+RET Z
 LD DE, Pantalla									; Carga en el registro DE el puntero a Pantalla
 												;(la dirección de memoria donde empieza la primera pantalla en formato comprimido)
 CP 7											; Compara con la ciudad actual con 7
@@ -307,9 +309,6 @@ SUB 6											; resta 6
 JR Modulo_CurrentCity							; salta a hacer otra iteración
 Fin_Modulo_CurrentCity:						
 
-
-
-;;; HASTA AQUÍ BIEN
 CP 3											; Compara el dato anterior con 3
 JR NC, Fila_inferior							; Si es mayor o igual a tres, salta a fila inferior
 LD (HL), 0										; si no, en el offset vertical de la pantalla carga 0
@@ -317,8 +316,6 @@ JR Selecciona_columna							; y salta al paso siguiente
 Fila_inferior:
 LD (HL), 128									; Si era mayor o igual a tres, en el offset vertical de la pantalla carga 128
 SUB 3											; y resta 3 para hacer que el número esté en el rango [0,2]
-
-
 
 Selecciona_columna:
 LD HL, Aux_screen_horizontal_offset				; Carga en HL el puntero al offset horizontal

@@ -63,6 +63,30 @@ Window_y_final_m_1:			DB 8	; La posición Y de la esquina inferior derecha
 Caracter_relleno:			DB 143	; El caracter para rellenar el recuadro
 
 ;#####################################################################################################
+;#####				Pinta_rango
+;#####################################################################################################
+Pinta_rango:
+;;;;;;;;;;;;;;; PINTAR RANGO EN LA IMPRESORA
+ld a, AT
+rst 0x10
+ld a, 15
+rst 0x10
+ld a, 1
+rst 0x10
+LD B, 1												; parámetro: en el registro B el limite izquierdo
+LD C, 23											; parámetro: en el registro C el limite derecho
+LD DE, Current_rank_message
+CALL Print_255_Terminated_with_line_wrap
+LD DE, Ranks
+ld hl, Current_rank
+ld b, (hl)
+CALL Select_elemento
+LD B, 1												; parámetro: en el registro B el limite izquierdo
+LD C, 23											; parámetro: en el registro C el limite derecho
+CALL Print_255_Terminated_with_line_wrap
+ret
+
+;#####################################################################################################
 ;#####				Borrar_panel_derecho
 ;#####################################################################################################
 Borrar_panel_derecho:
@@ -322,11 +346,29 @@ jr nz, Pinta_mensaje_loop_scroll
 pop iy
 pop ix
 call Dibujar_guias
+call Borrar_primera_linea
 RET
-;#####################################################################################################
-;#####				FIN_Pinta_mensaje_impresora
-;#####################################################################################################
 
+;#####################################################################################################
+;#####				Borrar_primera_linea
+;#####################################################################################################
+Borrar_primera_linea:
+ld a, PAPER
+rst 0x10
+ld a, 7
+rst 0x10
+ld a, AT
+rst 0x10
+ld a, 15
+rst 0x10
+ld a, 15
+rst 0x10
+ld b, 14
+repetir_borrar_primera_linea:
+ld a, 32
+rst 0x10
+djnz repetir_borrar_primera_linea
+ret
 
 
 ;#####################################################################################################
@@ -854,6 +896,7 @@ RST 0x10
 LD HL, CurrentCity
 LD DE, City_descriptions
 LD B, (HL)
+INC B
 LD C, 0
 call Select_elemento
 ;CALL Print_255_Terminated

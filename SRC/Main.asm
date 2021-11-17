@@ -20,6 +20,7 @@ ld (ix), h
 CALL ROM_CLS            ; Clear screen and open Channel 2 (Screen)
 CALL Pinta_pantalla_juego
 CALL Pinta_imagen_ciudad
+call Pinta_rango
 ; CALL PintaCursor
 ; call Pinta_impresora
 MainLoop:
