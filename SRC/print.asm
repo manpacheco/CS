@@ -20,6 +20,10 @@ OVER                    	EQU 0x15
 AT                      	EQU 0x16
 TAB                     	EQU 0x17
 CR                      	EQU 0x0C
+CARACTER_TODO_RELLENO		EQU 143
+WHITE						EQU 7
+YELLOW						EQU 6
+BLACK						EQU 0
 PAPER_HOLE_CHARACTER		EQU 59
 CITY_STRING_MAX_LENGTH 		EQU 16
 COUNTRY_STRING_MAX_LENGTH 	EQU 16
@@ -62,59 +66,35 @@ Window_x_final_m_1:			DB 11	; La posición X de la esquina inferior derecha
 Window_y_final_m_1:			DB 8	; La posición Y de la esquina inferior derecha
 Caracter_relleno:			DB 143	; El caracter para rellenar el recuadro
 
-;#####################################################################################################
-;#####				Pinta_rango
-;#####################################################################################################
-Pinta_rango:
-;;;;;;;;;;;;;;; PINTAR RANGO EN LA IMPRESORA
-ld a, AT
-rst 0x10
-ld a, 15
-rst 0x10
-ld a, 1
-rst 0x10
-LD B, 1												; parámetro: en el registro B el limite izquierdo
-LD C, 23											; parámetro: en el registro C el limite derecho
-LD DE, Current_rank_message
-CALL Print_255_Terminated_with_line_wrap
-LD DE, Ranks
-ld hl, Current_rank
-ld b, (hl)
-CALL Select_elemento
-LD B, 1												; parámetro: en el registro B el limite izquierdo
-LD C, 23											; parámetro: en el registro C el limite derecho
-CALL Print_255_Terminated_with_line_wrap
-ret
+
 
 ;#####################################################################################################
 ;#####				Borrar_panel_derecho
 ;#####################################################################################################
 Borrar_panel_derecho:
-ld hl, Caracter_relleno
-ld (hl), 143
-call Print_panel_derecho
+ld hl, Caracter_relleno								; Carga en HL la dirección del caracter de relleno
+ld (hl), CARACTER_TODO_RELLENO						; Carga en la dirección del caracter de relleno el caracter todo relleno
+call Print_panel_derecho							; Imprime el panel derecho, usando el caracter de relleno definido previamente
 ret
 
 ;#####################################################################################################
 ;#####				PintaCursor
 ;#####################################################################################################
 PintaCursor:
+LD HL, Cursor										; Carga en HL la dirección del cursor
+LD A, (HL)											; Carga en A el valor del cursor
+OR A												; Operación para afectar los flags
+RET Z												; Si el cursor era 0, ya se termina
+LD C, A												; Copia el cursor en C
+DEC C												; Resta uno al cursor
+LD B, 0												; Carga 0 en B como parte alta de BC
+LD HL, Cursor_botones								; Carga en HL la dirección base de los botones de los distintos valores de la variable cursor
+ADD HL, BC											; Suma HL y BC para conseguir en HL la dirección del botón actualmente indicado por la variable cursor
 
-LD HL, Cursor
-LD A, (HL)
-OR A
-RET Z
-LD C, A
-DEC C
-LD B, 0
-LD HL, Cursor_botones
-ADD HL, BC
+LD C, (HL)											; Prepara en C el elemento apuntado por HL
+INC C												; Suma 1
+LD A, Buttons_y_inicial+1							; Prepara en A la posicion vertical y también le suma 1 (se les suma 1 porque los bordes no tiene que iluminarse)
 
-LD C, (HL)
-INC C
-
-LD A, Buttons_y_inicial+1
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;LD C, Button_depart_x_inicial+1
 
 ;; A: Y characters shift down (en destino)
 ;; C: X Characters shift left (en destino)
@@ -142,261 +122,6 @@ djnz PintaCursor_loop
 RET
 
 ;#####################################################################################################
-;#####				Dibujar_guias
-;#####################################################################################################
-Dibujar_guias:
-ld a, PAPER
-rst 0x10
-ld a, 6
-rst 0x10
-ld a, AT
-rst 0x10
-ld a, 15 ; Y
-rst 0x10
-ld a, 14 ; X
-rst 0x10
-ld a, 64 ; Guía impresora
-rst 0x10
-
-ld a, AT
-rst 0x10
-ld a, 15 ; Y
-rst 0x10
-ld a, 29 ; X
-rst 0x10
-ld a, 64 ; Guía impresora
-rst 0x10
-ret
-
-;#####################################################################################################
-;#####				Pinta_impresora
-;#####################################################################################################
-Pinta_impresora:
-
-Call Borrar_panel_derecho
-
-ld a, PAPER
-rst 0x10
-ld a, 7
-rst 0x10
-ld a, INK
-rst 0x10
-ld a, 0
-rst 0x10
-
-ld d, 32
-ld e, 13
-ld a, 3
-
-Pinta_impresora_vertical_loop:
-
-PUSH AF
-ld a, AT
-rst 0x10
-ld a, e
-inc e
-rst 0x10
-ld a, 14
-rst 0x10
-
-;; EMPIEZA A IMPRIMIR UNA LÍNEA
-ld a, PAPER_HOLE_CHARACTER 
-rst 0x10
-ld b,14
-Pinta_impresora_horizontal_loop:
-ld a, 32 ; espacio
-rst 0x10
-djnz Pinta_impresora_horizontal_loop
-ld a, PAPER_HOLE_CHARACTER
-rst 0x10
-;; FIN IMPRESIÓN DE LÍNEA
-
-POP AF
-dec a
-jr nz, Pinta_impresora_vertical_loop
-
-
-call Dibujar_guias
-
-
-
-LD C, 2
-SEGUNDA:
-LD B, 18
-ld a, AT
-rst 0x10
-ld a, e
-inc e
-rst 0x10
-ld a, 13
-rst 0x10
-;; EMPIEZA A IMPRIMIR UNA LÍNEA
-Pinta_impresora_horizontal_loop2:
-
-ld a, 95 ; guIÓN BAJO
-rst 0x10
-djnz Pinta_impresora_horizontal_loop2
-DEC C
-JR nz, SEGUNDA
-;; FIN IMPRESIÓN DE LÍNEA
-
-ld a, AT
-rst 0x10
-ld a, 16 ; Y
-rst 0x10
-ld a, 25 ; X
-rst 0x10
-ld a, OVER
-rst 0x10
-ld a, 1
-rst 0x10
-ld a, 92 ; LED
-rst 0x10
-ld a, 92 ; LED
-rst 0x10
-ld a, 92 ; LED
-rst 0x10
-ld a, OVER
-rst 0x10
-ld a, 0
-rst 0x10
-
-
-RET
-
-;#####################################################################################################
-;#####				Pinta_mensaje_impresora
-;#####################################################################################################
-Pinta_mensaje_impresora:
-
-ld a, PAPER
-ld b, 15
-ld c, 5
-rst 0x10
-ld a, 7 
-rst 0x10
-ld a, AT
-rst 0x10
-ld a, 5 ; Y
-rst 0x10
-ld a, b ; X
-rst 0x10
-
-LD DE, Mensajes_impresora
-call Print_255_Terminated_with_line_wrap
-ret
-
-Hacer_scroll_papel_impresora:
-
-ld hl, LIVE_SCREEN_ADDRESS+192+14
-ld de, LIVE_SCREEN_ADDRESS+160+14
-call Scroll_up
-ld HL, LIVE_SCREEN_ADDRESS+224+14
-ld DE, LIVE_SCREEN_ADDRESS+192+14
-call Scroll_up
-ld HL, LIVE_SCREEN_ADDRESS+2048+14
-ld DE, LIVE_SCREEN_ADDRESS+224+14
-call Scroll_up
-
-ld a, PAPER
-rst 0x10
-ld a, 7 
-rst 0x10
-ld a, AT
-RST 0x10
-ld a, 15
-RST 0x10
-ld a, 14
-RST 0x10
-LD A, PAPER_HOLE_CHARACTER                							
-RST 0x10
-ld a, AT
-RST 0x10
-ld a, 15
-RST 0x10
-ld a, 29
-RST 0x10
-LD A, PAPER_HOLE_CHARACTER                							
-RST 0x10
-
-
-ld bc, 32
-push ix
-push iy
-ld ix, LIVE_SCREEN_ADDRESS+2048+0+14
-ld iy, LIVE_SCREEN_ADDRESS+2048-32+14
-ld a, 7
-
-
-Pinta_mensaje_loop_scroll:
-add ix, bc
-push ix
-pop hl
-add iy, bc
-push iy
-pop de
-push af
-push bc
-call Scroll_up
-pop bc
-pop af
-dec a
-jr nz, Pinta_mensaje_loop_scroll
-
-pop iy
-pop ix
-call Dibujar_guias
-call Borrar_primera_linea
-RET
-
-;#####################################################################################################
-;#####				Borrar_primera_linea
-;#####################################################################################################
-Borrar_primera_linea:
-ld a, PAPER
-rst 0x10
-ld a, 7
-rst 0x10
-ld a, AT
-rst 0x10
-ld a, 15
-rst 0x10
-ld a, 15
-rst 0x10
-ld b, 14
-repetir_borrar_primera_linea:
-ld a, 32
-rst 0x10
-djnz repetir_borrar_primera_linea
-ret
-
-
-;#####################################################################################################
-;#####				Scroll_up
-;#####				Param: HL Dirección de origen
-;#####				Params DE Dirección de destino
-;#####################################################################################################
-Scroll_up:
-ld a,8
-Scroll_bucle_exterior:
-ld b,0
-ld c, 16
-push hl
-push de
-LDIR
-pop de
-pop hl
-push af
-call NextScan
-ex de, hl
-call NextScan
-pop af
-ex de, hl
-dec a
-jr nz, Scroll_bucle_exterior
-ret
-
-;#####################################################################################################
 ;#####				Pinta_pantalla_juego
 ;#####################################################################################################
 Pinta_pantalla_juego:
@@ -412,7 +137,7 @@ CALL Print_255_Terminated
 CALL Print_city_text
 CALL Print_city_desc
 CALL Print_weekday_and_hour
-CALL Dibuja_Linea
+
 RET
 
 
@@ -433,7 +158,7 @@ ld E, (hl)
 
 LD A, PAPER
 RST 0x10
-LD A, 7
+LD A, WHITE
 RST 0x10
 LD A, INK
 RST 0x10
@@ -611,14 +336,14 @@ RET
 ;#####		parámetro: en el registro DE viene la dirección de la cadena que se va a escribir 
 ;#####################################################################################################
 Print_255_Terminated:
-LD A, (DE)											; Get the character
-CP 255												; CP with 255
-RET Z												; Ret if it is zero
-PUSH DE
-RST 0x10											; Otherwise print the character
-POP DE
-INC DE												; Inc to the next character in the string
-JR Print_255_Terminated								; Loop
+LD A, (DE)												; Get the character
+CP 255													; CP with 255
+RET Z													; Ret if it is zero
+PUSH DE	
+RST 0x10												; Otherwise print the character
+POP DE	
+INC DE													; Inc to the next character in the string
+JR Print_255_Terminated									; Loop
 
 ;#####################################################################################################
 ;#####				Print_255_Terminated_with_line_wrap
@@ -627,161 +352,98 @@ JR Print_255_Terminated								; Loop
 ;#####		parámetro: en el registro C el limite derecho
 ;#####################################################################################################
 Print_255_Terminated_with_line_wrap:
-LD A, (DE)											; Get the character
-CP 255												; CP with 255
-RET Z												; Ret if it is zero
 
-CP RETORNO_DE_CARRO
-JR Z, Retorno_carro
-
-PUSH BC												; preserva BC
-PUSH DE
-PUSH HL
-RST 0x10											; Otherwise print the character
-POP HL
-POP DE
-POP BC												; restaura BC
-
-LD HL, ROM_PRINT_CURRENT_COLUMN						; apunta al indice horizontal de print
-LD A, (HL)											; carga en A
-CP C												; compara con el limite derecho
-JR NC, Continua_Print_255_Terminated_with_line_wrap		; si es menor o igual, salta a continuar							
+LD A, (DE)												; Lee el primer carácter
+CP 255													; Compara con 255 que hace de separador
+RET Z													; Si era igual a 255 retorna
+CP RETORNO_DE_CARRO										; Ahora compara con 13 (retorno de carro) 
+JR Z, Retorno_carro										; Si era igual al retorno de carro, salta a Retorno_carro
+	
+PUSH BC													; preserva en pila el registro BC
+PUSH DE													; preserva en pila el registro DE
+RST 0x10												; Imprime el carácter actual
+POP DE													; restaura el registro DE desde la pila
+POP BC													; restaura el registro BC desde la pila
+	
+LD HL, ROM_PRINT_CURRENT_COLUMN							; apunta al indice horizontal de print
+LD A, (HL)												; carga en A el indice horizontal de print
+CP C													; compara con el limite derecho
+JR NC, Continua_Print_255_Terminated_with_line_wrap		; si es menor o igual, salta a continuar
 JR Retorno_carro										; si es menor (la coordenada va en sentido decreciente) salta a retorno de carro
 
 Retorno_carro:
-PUSH BC												; preserva BC
-LD A, AT											; carga el código AT
-RST 0x10											; lo imprime
-
-LD HL, ROM_PRINT_CURRENT_LINE						; carga el puntero a la linea actual de print
-LD B, (HL)											; carga el valor en B
-LD A, 24											; carga 24 en A para calcular la línea
-SUB B												; A <- ( 24-B )
-INC A												; incrementa A - baja una línea
-RST 0x10											; imprime y posiciona el cursor
-
-POP BC												; restaura BC
-LD A, B												; carga en A el valor de la columna
-RST 0x10											; imprime
+PUSH BC													; preserva BC
+LD A, AT												; carga el código AT
+RST 0x10												; lo imprime
+	
+LD HL, ROM_PRINT_CURRENT_LINE							; carga el puntero a la linea actual de print
+LD B, (HL)												; carga el valor en B
+LD A, 24												; carga 24 en A para calcular la línea
+SUB B													; A <- ( 24-B )
+INC A													; incrementa A - baja una línea
+RST 0x10												; imprime y posiciona el cursor
+POP BC													; restaura BC
+LD A, B													; carga en A el valor de la columna
+RST 0x10												; imprime
 
 Continua_Print_255_Terminated_with_line_wrap:
-
-
-ld hl, Sound
-ld a, (hl)
-or a
-JR Z, Print_255_Inc_DE
-
-push bc
-push de
-call Noise
-pop de
-pop bc
-Print_255_Inc_DE:
-INC DE												; Inc to the next character in the string
-JR Print_255_Terminated_with_line_wrap				; Loop
+INC DE													; Inc to the next character in the string
+JR Print_255_Terminated_with_line_wrap					; Loop
 
 
 ;#####################################################################################################
-;#####				Pinta_boton_Elegir_destino
+;#####		Print_255_Terminated_with_line_wrap_in_the_printer
+;#####		parámetro: en el registro DE viene la dirección de la cadena que se va a escribir 
+;#####		parámetro: en el registro B el limite izquierdo
+;#####		parámetro: en el registro C el limite derecho
 ;#####################################################################################################
-Pinta_boton_Elegir_destino:
-LD HL, Caracter_relleno
-LD (HL),32
+Print_255_Terminated_with_line_wrap_in_the_printer:
+LD A, (DE)															; Lee el primer carácter
+CP 255																; Compara con 255 que hace de separador
+RET Z																; Si era igual a 255 retorna
+CP RETORNO_DE_CARRO													; Ahora compara con 13 (retorno de carro) 
+JR Z, Retorno_carro_in_the_printer									; Si era igual al retorno de carro, salta a Retorno_carro
+				
+PUSH BC																; preserva en pila el registro BC
+PUSH DE																; preserva en pila el registro DE
+RST 0x10
+call Noise															; Imprime el carácter actual
+POP DE																; restaura el registro DE desde la pila
+POP BC																; restaura el registro BC desde la pila
+				
+LD HL, ROM_PRINT_CURRENT_COLUMN										; apunta al indice horizontal de print
+LD A, (HL)															; carga en A el indice horizontal de print
+CP C																; compara con el limite derecho
+JR NC, Continua_Print_255_Terminated_with_line_wrap_in_the_printer	; si es menor o igual, salta a continuar
+			
+Retorno_carro_in_the_printer:			
+PUSH BC																; preserva BC
+LD A, AT															; carga el código AT
+RST 0x10															; lo imprime
+				
+LD HL, ROM_PRINT_CURRENT_LINE										; carga el puntero a la linea actual de print
+LD B, (HL)															; carga el valor en B
+LD A, 24															; carga 24 en A para calcular la línea
+SUB B																; A <- ( 24-B )
 
-LD HL, Window_y_inicial
-LD (HL),Buttons_y_inicial					
-LD HL, Window_y_final_m_1
-LD (HL),Buttons_y_final
-LD HL, Window_x_inicial
-LD (HL),Button_depart_x_inicial					
-LD HL, Window_x_final_m_1
-LD (HL),Button_depart_x_final
-CALL Pinta_recuadro
+;JR NZ, Retorno_carro_con_scroll	
+halt
+halt
+halt
+JR Continua_retorno_carro_in_the_printer	
+Retorno_carro_con_scroll_in_the_printer:	
+;call Hacer_scroll_papel_impresora
 
-LD DE, Button_depart_1_3
-CALL Print_255_Terminated
+Continua_retorno_carro_in_the_printer:	
 
-LD DE, Button_depart_2_3
-CALL Print_255_Terminated
+RST 0x10															; imprime y posiciona el cursor
+POP BC																; restaura BC
+LD A, B																; carga en A el valor de la columna
+RST 0x10															; imprime
 
-LD A, 1
-PUSH BC
-PUSH DE
-CALL ROM_OPEN_CHANNEL
-POP DE
-POP BC
-
-LD DE, Button_depart_3_3
-CALL Print_255_Terminated
-
-LD A, 2
-CALL ROM_OPEN_CHANNEL
-RET
-
-;#####################################################################################################
-;#####				Pinta_boton_Lupa
-;#####################################################################################################
-Pinta_boton_Lupa:
-ld hl, Window_y_final_m_1
-ld (hl),Buttons_y_final
-ld hl, Window_x_inicial
-ld (hl),Button_lupa_x_inicial
-ld hl, Window_x_final_m_1
-ld (hl),Button_lupa_x_final
-call Pinta_recuadro
-
-LD DE, Button_lupa_1_3
-CALL Print_255_Terminated
-
-LD DE, Button_lupa_2_3
-CALL Print_255_Terminated
-
-LD A, 1
-PUSH BC
-PUSH DE
-CALL ROM_OPEN_CHANNEL
-POP DE
-POP BC
-
-LD DE, Button_lupa_3_3
-CALL Print_255_Terminated
-
-LD A, 2
-CALL ROM_OPEN_CHANNEL
-RET
-
-;#####################################################################################################
-;#####				Pinta_boton_Ordenador
-;#####################################################################################################
-Pinta_boton_Ordenador:
-LD HL, Window_y_final_m_1
-LD (HL),Buttons_y_final
-LD HL, Window_x_inicial
-LD (HL),Button_crime_x_inicial					
-LD HL, Window_x_final_m_1
-LD (HL),Button_crime_x_final					
-CALL Pinta_recuadro
-
-LD DE, Button_crime_1_3
-CALL Print_255_Terminated
-
-LD DE, Button_crime_2_3
-CALL Print_255_Terminated
-
-LD A, 1
-PUSH BC
-PUSH DE
-CALL ROM_OPEN_CHANNEL
-POP DE
-POP BC
-
-LD DE, Button_crime_3_3
-CALL Print_255_Terminated
-
-LD A, 2
-CALL ROM_OPEN_CHANNEL
-RET
+Continua_Print_255_Terminated_with_line_wrap_in_the_printer:
+INC DE																; Inc to the next character in the string
+JR Print_255_Terminated_with_line_wrap_in_the_printer				; Loop
 
 
 ;#####################################################################################################
@@ -854,12 +516,12 @@ ret
 ;#####				Print_city_text
 ;#####################################################################################################
 Print_city_text:
-
 LD HL, CurrentCity
 LD C, 0 											; PARA MEJORAR LA LEGIBILIDAD EN DEPURACiÓN
 LD B, (HL)											; carga en B EL ÍNDICE DE la ciudad actual
 INC B												; suma 1 al índice de ciudad
 LD DE, Cities										; carga en DE el puntero a ciudades
+;LD DE, Cities+2
 CALL Select_elemento
 LD B, 1												; parámetro: en el registro B el limite izquierdo
 LD C, 23											; parámetro: en el registro C el limite derecho

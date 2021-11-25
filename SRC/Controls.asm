@@ -39,7 +39,16 @@ in a,(c)					; a la instrucción IN solo se le pasa la parte explicitamente el r
 rra							; nos quedamos con el valor del bit más bajo
 jr c, ScanRight				; si hay carry significa que la tecla no estaba pulsada
 ;;;; CALL FUNCION BAJAR
-call Hacer_scroll_papel_impresora
+;call Hacer_scroll_papel_impresora
+call Restablecer_valores_por_defecto_recuadros
+LD HL, CurrentCity
+LD A, (HL)
+dec A
+LD (HL), A
+
+call Restablecer_valores_por_defecto_recuadros
+CALL Pinta_pantalla_juego
+CALL Pinta_imagen_ciudad
 ;jr ScanFinally
 
 ; ##########################################################

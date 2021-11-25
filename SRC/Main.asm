@@ -20,9 +20,11 @@ ld (ix), h
 CALL ROM_CLS            ; Clear screen and open Channel 2 (Screen)
 CALL Pinta_pantalla_juego
 CALL Pinta_imagen_ciudad
-call Pinta_rango
+;CALL Pinta_impresora
+CALL Dibuja_Linea
+;CALL Pinta_rango
 ; CALL PintaCursor
-; call Pinta_impresora
+
 MainLoop:
 ld a,5 ; 1 is the code for blue
 out (254),a
@@ -53,6 +55,8 @@ include "Sound.asm"
 Carton_bold_font:
 include "Carton_bold_font.asm"
 include "screens.asm"
+include "Buttons.asm"
+include "Printer.asm"
 include "print.asm"
 Last_position:
 
