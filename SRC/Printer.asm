@@ -155,7 +155,7 @@ RET
 ;#####				Pinta_mensaje_impresora
 ;#####################################################################################################
 Pinta_mensaje_impresora:
-ld b, 15
+ld b, PRINTER_BASE_X
 ld c, 5
 ld a, PAPER
 rst 0x10
@@ -163,12 +163,16 @@ ld a, WHITE
 rst 0x10
 ld a, AT
 rst 0x10
-ld a, 15 ; Y
+ld a, PRINTER_BASE_Y ; Y
+;ld a, 4 ; Y
 RST 0x10
 LD A, B ; X
 RST 0x10
 LD DE, Mensajes_impresora
 call Print_255_Terminated_with_line_wrap_in_the_printer
+
+;call Print_255_Terminated_with_line_wrap
+call Hacer_scroll_papel_impresora
 ret
 
 ;#####################################################################################################
@@ -195,6 +199,11 @@ rst 0x10
 ld a, WHITE
 rst 0x10
 
+ld a, INK
+rst 0x10
+
+ld a, BLACK
+rst 0x10
 
 ld a, AT
 RST 0x10
@@ -249,8 +258,6 @@ pop af
 pop bc
 pop de
 pop hl
-
-
 RET
 
 ;#####################################################################################################
@@ -281,7 +288,6 @@ ret
 ;#####				Params DE Dirección de destino
 ;#####################################################################################################
 Scroll_up:
-ret
 ld a,8
 Scroll_bucle_exterior:
 ld b,0

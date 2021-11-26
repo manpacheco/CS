@@ -113,8 +113,6 @@ jr c, NothingPressed
 ;ld (hl),1
 call Pinta_impresora
 call Pinta_mensaje_impresora
-ld hl, Sound
-ld (hl),0
 JR ScanFinally
 
 NothingPressed:

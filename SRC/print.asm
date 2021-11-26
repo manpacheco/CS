@@ -35,7 +35,8 @@ BORDE_DER					EQU 148
 ESQUINA_INFERIOR_IZQ		EQU 149
 BORDE_INFERIOR				EQU 150
 ESQUINA_INFERIOR_DER		EQU 151
-RIO_JAN						EQU 26
+PRINTER_BASE_X				EQU 15
+PRINTER_BASE_Y				EQU 15
 TAM_WEEKDAYS				EQU 4
 Menu:						DB AT, 1, 0, PAPER, 7, INK, 2, " G", INK, 0, "ame  ", INK, 2, "O", INK, 0, "ptions  ", INK, 2, "A", INK, 0, "cme  ", INK, 2, "D", INK, 0, "ossiers ",255
 City_print_config:			DB AT, 4, 1, PAPER, 0, INK, 7, 255
@@ -375,7 +376,7 @@ Retorno_carro:
 PUSH BC													; preserva BC
 LD A, AT												; carga el código AT
 RST 0x10												; lo imprime
-	
+
 LD HL, ROM_PRINT_CURRENT_LINE							; carga el puntero a la linea actual de print
 LD B, (HL)												; carga el valor en B
 LD A, 24												; carga 24 en A para calcular la línea
@@ -417,29 +418,20 @@ CP C																; compara con el limite derecho
 JR NC, Continua_Print_255_Terminated_with_line_wrap_in_the_printer	; si es menor o igual, salta a continuar
 			
 Retorno_carro_in_the_printer:			
-PUSH BC																; preserva BC
+
+
+
+push bc
+push de
+call Hacer_scroll_papel_impresora
 LD A, AT															; carga el código AT
 RST 0x10															; lo imprime
-				
-LD HL, ROM_PRINT_CURRENT_LINE										; carga el puntero a la linea actual de print
-LD B, (HL)															; carga el valor en B
-LD A, 24															; carga 24 en A para calcular la línea
-SUB B																; A <- ( 24-B )
-
-;JR NZ, Retorno_carro_con_scroll	
-halt
-halt
-halt
-JR Continua_retorno_carro_in_the_printer	
-Retorno_carro_con_scroll_in_the_printer:	
-;call Hacer_scroll_papel_impresora
-
-Continua_retorno_carro_in_the_printer:	
-
+LD A, PRINTER_BASE_Y
 RST 0x10															; imprime y posiciona el cursor
-POP BC																; restaura BC
-LD A, B																; carga en A el valor de la columna
+LD A, PRINTER_BASE_X
 RST 0x10															; imprime
+pop de
+pop bc
 
 Continua_Print_255_Terminated_with_line_wrap_in_the_printer:
 INC DE																; Inc to the next character in the string
