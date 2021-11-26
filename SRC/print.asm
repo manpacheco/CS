@@ -399,6 +399,14 @@ JR Print_255_Terminated_with_line_wrap					; Loop
 ;#####		parámetro: en el registro C el limite derecho
 ;#####################################################################################################
 Print_255_Terminated_with_line_wrap_in_the_printer:
+LD A, PAPER
+RST 0x10
+LD A, WHITE
+RST 0x10
+LD A, INK
+RST 0x10
+LD A, BLACK
+RST 0x10
 LD A, (DE)															; Lee el primer carácter
 CP 255																; Compara con 255 que hace de separador
 RET Z																; Si era igual a 255 retorna
@@ -442,7 +450,14 @@ JR Print_255_Terminated_with_line_wrap_in_the_printer				; Loop
 ;#####				Print_weekday_and_hour
 ;#####################################################################################################
 Print_weekday_and_hour:
-
+LD A, PAPER
+RST 0x10
+LD A, BLACK
+RST 0x10
+LD A, INK
+RST 0x10
+LD A, WHITE
+RST 0x10
 LD DE, Hour_print_config
 call Print_255_Terminated
 LD A,32
@@ -522,7 +537,7 @@ RET
 
 ;#####################################################################################################
 ;#####				Select_elemento
-;#####		parámetro: en el registro BC viene el índice del elemento que se va a seleccionar
+;#####		parámetro: en el registro B viene el índice del elemento que se va a seleccionar
 ;#####		parámetro: en el registro DE viene la dirección de la cadena que se va a escribir 
 ;#####		salida: en el registro DE sale la dirección de la cadena con el elemento seleccionado
 ;#####################################################################################################
@@ -548,12 +563,14 @@ LD A, 13                							; X
 RST 0x10
 
 LD HL, CurrentCity
-LD DE, City_descriptions
+LD A, (HL)
+JR Z, Print_city_desc_HQ
 LD B, (HL)
+LD DE, City_descriptions
+
 INC B
 LD C, 0
 call Select_elemento
-;CALL Print_255_Terminated
 LD B, 13
 LD C, 3
 CALL Print_255_Terminated_with_line_wrap
@@ -571,6 +588,10 @@ LD (HL), 8
 LD HL, Caracter_relleno
 LD (HL), 143
 RET
+
+Print_city_desc_HQ:
+call Pinta_impresora
+ret
 
 org 65368
 ; UDG A

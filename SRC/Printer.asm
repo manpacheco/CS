@@ -1,34 +1,33 @@
 ;#####################################################################################################
 ;#####				Pinta_rango
 ;#####################################################################################################
-;;;;;;;Pinta_rango:
-;;;;;;;ret
-;;;;;;;LD A, PAPER
-;;;;;;;RST 0x10
-;;;;;;;LD A, WHITE
-;;;;;;;RST 0x10
-;;;;;;;ld a, AT
-;;;;;;;rst 0x10
-;;;;;;;ld a, 15
-;;;;;;;rst 0x10
-;;;;;;;ld a, 15
-;;;;;;;rst 0x10
-;;;;;;;LD B, 15										; parámetro: en el registro B el limite izquierdo
-;;;;;;;LD C, 5											; parámetro: en el registro C el limite derecho
-;;;;;;;LD DE, Current_rank_message
-;;;;;;;ld hl, Sound
-;;;;;;;ld (hl),1
-;;;;;;;CALL Print_255_Terminated_with_line_wrap
-;;;;;;;LD DE, Ranks
-;;;;;;;ld hl, Current_rank
-;;;;;;;ld b, (hl)
-;;;;;;;CALL Select_elemento
-;;;;;;;LD B, 1												; parámetro: en el registro B el limite izquierdo
-;;;;;;;LD C, 23											; parámetro: en el registro C el limite derecho
-;;;;;;;CALL Print_255_Terminated_with_line_wrap
-;;;;;;;ld hl, Sound
-;;;;;;;ld (hl),0
-;;;;;;;ret
+Pinta_rango:
+ld b, PRINTER_BASE_X
+LD C, 5
+LD A, PAPER
+rst 0x10
+ld a, WHITE
+rst 0x10
+ld a, AT
+rst 0x10
+LD A, PRINTER_BASE_Y
+rst 0x10
+LD A, PRINTER_BASE_X
+rst 0x10
+LD DE, Current_rank_message
+CALL Print_255_Terminated_with_line_wrap_in_the_printer
+LD DE, Ranks
+LD HL, Current_rank
+LD B, (HL)
+CALL Select_elemento
+CALL Print_255_Terminated_with_line_wrap_in_the_printer
+
+LD DE, NewLine
+CALL Print_255_Terminated_with_line_wrap_in_the_printer
+
+LD DE, Press_key_to_start_message
+CALL Print_255_Terminated_with_line_wrap_in_the_printer
+RET
 
 ;#####################################################################################################
 ;#####				Dibujar_guias

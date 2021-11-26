@@ -119,3 +119,12 @@ NothingPressed:
 
 ScanFinally:
 RET
+
+PressAnyKey:
+ld hl,23560         			; LAST K system variable.
+ld (hl),0           			; put null value there.
+PressAnyKeyLoop:			
+ld a,(hl)           			; new value of LAST K.
+cp 0                			; is it still zero?
+jr z,PressAnyKeyLoop			; yes, so no key pressed.
+RET                 			; key was pressed.
