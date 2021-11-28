@@ -3,36 +3,34 @@ ORG $6000
 include "data.asm"
 
 Main:
-;dirección +-8329
-ld a, 56 ; selecciona tinta 7 + paper 0*8
-ld (23693),a
-call 3503
+LD A, 56 							; selecciona tinta 7 + paper 0*8
+LD (23693),A						; establecer colores de pantalla
+CALL 3503							; borrar la pantalla
 
-ld a,6 ; 1 is the code for blue
-out (254),a
+LD A,6 								; carga el color del borde
+OUT (254),A							; establecer el color del borde
 
-ld hl, Carton_bold_font-256
-ld ix, 23606
-ld (ix), l
-ld ix, 23607
-ld (ix), h
+LD HL, Carton_bold_font-256
+LD IX, 23606
+LD (IX), L
+LD IX, 23607
+LD (IX), H
 
-CALL ROM_CLS            ; Clear screen and open Channel 2 (Screen)
+CALL ROM_CLS            			; Clear screen and open Channel 2 (Screen)
 CALL Pinta_pantalla_juego
 CALL Pinta_imagen_ciudad
 CALL Dibuja_Linea
-CALL Pinta_rango
-call PressAnyKey
+CALL Inicia_caso
 MainLoop:
-ld a,5 ; 1 is the code for blue
-out (254),a
+LD A,5								; carga el color del borde
+OUT (254),A
 HALT
 
-CALL ScanAllKeys
-ld a,1 ; 1 is the code for blue
-out (254),a
+CALL ScanAllKeys					; lee las teclas
+LD A,1								; 1 is the code for blue
+OUT (254),A
 HALT
-jr MainLoop
+JR MainLoop
 RET
 
 Pantalla:
@@ -50,6 +48,7 @@ incbin "world.scr.zx0"
 include "dzx0_standard.asm"
 include "Controls.asm"
 include "Sound.asm"
+include "Game.asm"
 Carton_bold_font:
 include "Carton_bold_font.asm"
 include "screens.asm"

@@ -120,10 +120,18 @@ NothingPressed:
 ScanFinally:
 RET
 
+; ##########################################################
+; ###############     PressAnyKey       ####################
+; ##########################################################
+; Espera a que se pulse una tecla y además devuelve un numero random en AF'
+
 PressAnyKey:
 ld hl,23560         			; LAST K system variable.
 ld (hl),0           			; put null value there.
 PressAnyKeyLoop:			
+ex af,af'
+inc a
+ex af, af'
 ld a,(hl)           			; new value of LAST K.
 cp 0                			; is it still zero?
 jr z,PressAnyKeyLoop			; yes, so no key pressed.

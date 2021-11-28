@@ -12,6 +12,7 @@ Vehicle: db "convertible", "limousine", "race car", "motorcycle"
 Weekdays: db "Mon", 255,"Tue",255,"Wed",255,"Thu",255,"Fri",255,"Sat",255,"Sun",255
 
 ;Estado actual
+Seed_for_random dw 0
 Suspect: db 99
 Cursor: db 1
 Sound: db 0
@@ -20,6 +21,7 @@ Cursor_botones: db Button_depart_x_inicial, Button_lupa_x_inicial, Button_crime_
 Aux_screen_horizontal_offset: db 0 ; 0/10/20
 Aux_screen_vertical_offset: db 0 ; 0/128
 CurrentCity: db 0 ; rango [1,30]
+CurrentEscapeRoute: db 0,0 ; rango [1,30]
 CurrenCityConfigOffsetX: db 0,10,20,0,10,20
 CurrenCityConfigOffsetY: db 0,0,0,128,128,128
 CurrentCountry: db 28
@@ -30,6 +32,8 @@ City_descriptions: db 255,"    ",255,"Welcome to Athens,the capital of",13,"Gree
 Current_rank: db 0 ; [0-4]
 Current_rank_message: db " Welcome to",13,"headquarters,",13,"your current",13,"rank is:", 255
 Press_key_to_start_message: db "Press a key to start", 255
+Flash_message: db 13,13,42,42,42," FLASH ",42,42,42,13,13,"National",13,"treasure",13,"stolen from",13, 255
+Stolen_item_message: db 13,13,"The treasure",13,"has been",13,"identified as",13, 255
 Ranks: db 32,13,"Rookie",255,13,"Sleuth",255,13,"Private eye",255,13,"Investigator",255,13,"Ace detective",255
 NewLine: db 13,13,255
 ;0 cases solved = rookie
