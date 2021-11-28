@@ -5,6 +5,7 @@ BEEPER: EQU $03B5
 ;#####				Overwrite: a, b, E, HL
 ;#####################################################################################################
 Noise:
+ret
 ld e,55            ; repeat 250 times.
 ld hl,0             ; start pointer in ROM.
 noise2:

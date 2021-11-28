@@ -25,19 +25,26 @@ LD (HL), A
 EX AF,AF'
 LD DE, Flash_message
 CALL Print_255_Terminated_with_line_wrap_in_the_printer
-call Random
-and 31
-JR NZ, Inicia_caso_valid_city
-ld A, 17
+CALL Random
+AND 31
+CP 2 
+JR NC, Inicia_caso_valid_city
+ld A, 17	; Si la ciudad resulta 0, mejor le ponemos otro valor, p.ej. 17
+
 Inicia_caso_valid_city:
 ld hl, CurrentCity
 ld (hl), a
 ld hl, CurrentEscapeRoute
 LD (HL), A
 LD B, A
+PUSH BC
 LD DE, Cities
 CALL Select_elemento
 CALL Print_255_Terminated_with_line_wrap_in_the_printer
 LD DE, Stolen_item_message
+CALL Print_255_Terminated_with_line_wrap_in_the_printer
+LD DE, National_treasures
+pop bc
+CALL Select_elemento
 CALL Print_255_Terminated_with_line_wrap_in_the_printer
 RET
