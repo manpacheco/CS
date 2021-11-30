@@ -3,7 +3,7 @@ Countries: db 255,"-",255,"Greece",255,"Iraq",255,"Mali",255,"Thailand",255,"Hun
 
 Nombres: db "Carmen Sandiego", "Merey LaRoc", "Dazzle Annie", "Lady Aqatha", "Len Bulk", "Scar Graynolt", "Nick Brunch", "Fast Eddie B", "Ihor Ihorovich", "Katherine Drib"
 Sex: db 'F', 'F', 'F', 'F', 'M', 'M', 'M', 'M', 'M', 'M'
-
+Sex_texts: db "Male",255,"Female",255
 ;Tablas maestras
 Hobby: db "tennis","music","mt. climbing","skydiving","swimming","croquet"
 Hair: db "brown", "blond", "red", "black"
@@ -21,7 +21,7 @@ Cursor_botones: db Button_depart_x_inicial, Button_lupa_x_inicial, Button_crime_
 Aux_screen_horizontal_offset: db 0 ; 0/10/20
 Aux_screen_vertical_offset: db 0 ; 0/128
 CurrentCity: db 0 ; rango [1,30]
-CurrentEscapeRoute: db 0,0 ; rango [1,30]
+CurrentEscapeRoute: db 0,0,0,0,0 ; rango [1,30]
 CurrenCityConfigOffsetX: db 0,10,20,0,10,20
 CurrenCityConfigOffsetY: db 0,0,0,128,128,128
 CurrentCountry: db 28
@@ -37,6 +37,10 @@ Press_key_to_start_message: db "Press a key to start", 255
 Flash_message: db 13,13,42,42,42," FLASH ",42,42,42,13,13,"National",13,"treasure",13,"stolen from",13, 255
 Stolen_item_message: db 13,13,"The treasure",13,"has been",13,"identified as",13, 255
 Ranks: db 32,13,"Rookie",255,13,"Sleuth",255,13,"Private eye",255,13,"Investigator",255,13,"Ace detective",255
+Suspect_message: db "suspect at the scene of the crime.", 13,13,"Your assignment:",13,"Track the thief from",255
+Hideout_message_0: db "to his hideout and arrest him",255
+Hideout_message_1: db "to her hideout and arrest her",255
+GoodLuck_message: db "You must apprehend the thief by Sunday, 5 p.m.",13,13,"Good luck",255
 NewLine: db 13,13,255
 ;0 cases solved = rookie
 ;1-3 cases solved = sleuth
