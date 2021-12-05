@@ -19,6 +19,7 @@ RET
 ;################################### Inicia_caso ####################################################
 ;########################################################################################################
 Inicia_caso:
+
 CALL Pinta_rango
 CALL PressAnyKey
 EX AF,AF'
@@ -46,24 +47,17 @@ CALL Print_255_Terminated_with_line_wrap_in_the_printer
 LD DE, Stolen_item_message
 CALL Print_255_Terminated_with_line_wrap_in_the_printer
 LD DE, National_treasures
-pop bc
+POP BC
 CALL Select_elemento
 CALL Print_255_Terminated_with_line_wrap_in_the_printer
 LD DE, NewLine
-; CALL Print_255_Terminated_with_line_wrap_in_the_printer
+CALL Print_255_Terminated_with_line_wrap_in_the_printer
 CALL Select_next_thief
 LD HL, Current_thief
 LD B, (HL)
-;LD DE, Thief_names
-
-;;;;;; CONTINUAR POR AQUÍ, por que no se pintan los nombres del ladron actual?
-
-
-LD DE, City_descriptions
+LD DE, Thief_names
 CALL Select_elemento
 CALL Print_255_Terminated_with_line_wrap_in_the_printer
-hola:
-jr hola
 RET
 
 ;########################################################################################################
@@ -85,9 +79,11 @@ INC A														; Se suma 1 y pasa a [1-8]
 LD DE, Active_thiefs										; Carga en DE la lista de ladrones activos
 Bucle_seleccion_ladron:
 LD B, A														; Carga el [1-8] en B
-CALL Select_elemento										; Selecciona el elemento i-ésimo, estando el índice en el registro B
+CALL Select_elemento_por_posicion							; Selecciona el elemento i-ésimo, estando el índice en el registro B
+EX AF, AF'
 LD A, (DE)													; Carga el dato en A
 OR A														; Se mira si es 0
+EX AF, AF'
 JR NZ, Fija_ladron_activo									; Si no es 0, entonces este me vale
 INC A														; Si es 0, se intenta con el siguiente
 CP 10														; Si ha llegado a 10, ya está fuera del array

@@ -552,6 +552,19 @@ DJNZ Select_elemento
 RET
 
 ;#####################################################################################################
+;#####				Select_elemento
+;#####		parámetro: en el registro B viene el índice del elemento que se va a seleccionar
+;#####		parámetro: en el registro DE viene la dirección de la cadena que se va a escribir 
+;#####		salida: en el registro DE sale la dirección de la cadena con el elemento seleccionado
+;#####################################################################################################
+Select_elemento_por_posicion:
+LD H,0
+LD L, B
+ADD HL, DE
+EX DE,HL
+RET
+
+;#####################################################################################################
 ;#####				Print_city_desc
 ;#####################################################################################################
 Print_city_desc:
