@@ -1,15 +1,15 @@
-Cities: db 255,13,"    HQ",255,"  Athens",255," Baghdad",255,"  Bamako",255," Bangkok",255," Budapest",255,"  Buenos",13,"  Aires",255,"  Cairo",255," Colombo",255," Istanbul",255,"Kathmandu",255,"  Kigali",255,"   Lima",255,"  London",255,"  Mexico",13,"  City",255," Montreal",255,"  Moroni",255,"  Moscow",255,"New Delhi",255," New York",255,"   Oslo",255,"  Paris",255,"  Peking",255,"   Port",13," Moresby",255,"Reykjavik",255,"  Rio de",13," Janeiro",255,"   Rome",255,"San Marino",255,"Singapore",255," Sydney",255,"  Tokyo",255
+Cities: db 255,13,"    HQ",255,128,128,"Athens",255,128,"Baghdad",255,128,128,"Bamako",255,128,"Bangkok",255,128,"Budapest",255,128,128,"Buenos",13,128,128,"Aires",255,128,128,"Cairo",255,128,"Colombo",255,128,"Istanbul",255,"Kathmandu",255,128,128,"Kigali",255,128,128,128,"Lima",255,128,128,"London",255,128,128,"Mexico",13,128,128,"City",255,128,"Montreal",255,128,128,"Moroni",255,128,128,"Moscow",255,"New Delhi",255,128,"New York",255,128,128,128,"Oslo",255,128,128,"Paris",255,128,128,"Peking",255,128,128,128,"Port",13,128,"Moresby",255,"Reykjavik",255,128,128,"Rio de",13,128,128,"Janeiro",255,128,128,128,"Rome",255,"San Marino",255,"Singapore",255,128,"Sydney",255,128,128,"Tokyo",255
 Countries: db 255,"-",255,"Greece",255,"Iraq",255,"Mali",255,"Thailand",255,"Hungary",255,"Argentina",255,"Egypt",255,"Sri Lanka",255,"Turkey",255,"Nepal",255,"Rwanda",255,"Peru",255,"UK",255,"Mexico",255,"Canada",255,"Comoros",255,"Soviet Union",255,"India",255,"USA",255,"Norway",255,"France",255,"China",255,"Papua New Guinea",255,"Iceland",255,"Brazil",255,"Italy",255,"San Marino",255,"Singapore",255,"Australia",255,"Japan",255
 
 ; EN TOTAL SON 10 LADRONES (Carmen Sandiego + otros 9)
-Thief_names: db " Carmen Sandiego", 255,"Merey LaRoc", 255,"Dazzle Annie", 255,"Lady Aqatha",255, "Len Bulk",255, "Scar Graynolt",255, "Nick Brunch",255, "Fast Eddie B",255 ,"Ihor Ihorovich", 255,"Katherine Drib",255
+Thief_names: db " Carmen Sandiego", 255,"Merey LaRoc", 255,"Dazzle Annie", 255,"Lady Agatha",255, "Len Bulk",255, "Scar Graynolt",255, "Nick Brunch",255, "Fast Eddie B",255 ,"Ihor Ihorovich", 255,"Katherine Drib",255
 Active_thiefs: db 0, 1, 1, 1, 1, 1, 1, 1, 1, 1
 Thiefs_in_jail: db 0
 Current_thief: db 0
-Sex: db 1, 1, 1, 1, 0, 0, 0, 0, 0, 0, 255
-Sex_texts: db "Male",255,"Female",255
+Thief_sex: db 1, 1, 1, 1, 0, 0, 0, 0, 0, 0
+Sex_texts: db "  Male",255,"Female",255
 ;Tablas maestras
-Hobby: db "tennis","music","mt. climbing","skydiving","swimming","croquet"
+Hobby: db "tennis","music","climbing","skydives","swimming","croquet"
 Hair: db "brown", "blond", "red", "black"
 Feature: db "limps", "ring", "tatto", "scar", "jewelry"
 Vehicle: db "convertible", "limousine", "race car", "motorcycle"
@@ -41,9 +41,8 @@ Press_key_to_start_message: db "Press a key to start", 255
 Flash_message: db 13,13,42,42,42," FLASH ",42,42,42,13,13,"National",13,"treasure",13,"stolen from",13, 255
 Stolen_item_message: db 13,13,"The treasure",13,"has been",13,"identified as",13, 255
 Ranks: db 32,13,"Rookie",255,13,"Sleuth",255,13,"Private eye",255,13,"Investigator",255,13,"Ace detective",255
-Suspect_message: db "suspect at the scene of the crime.", 13,13,"Your assignment:",13,"Track the thief from",255
-Hideout_message_0: db "to his hideout and arrest him",255
-Hideout_message_1: db "to her hideout and arrest her",255
+Suspect_message: db " suspect at the scene",13,"of the crime.", 13,13,"Track the",13,"thief from",13,255
+Hideout_message: db " ",13,"to his hideoutand arrest him",255, 13,"to her hideoutand arrest her",255
 GoodLuck_message: db "You must apprehend the thief by Sunday, 5 p.m.",13,13,"Good luck",255
 NewLine: db 13,13,255
 ;0 cases solved = rookie

@@ -32,8 +32,7 @@ CALL Random
 AND 31
 CP 2 
 JR NC, Inicia_caso_valid_city
-ld A, 17	; Si la ciudad resulta 0, mejor le ponemos otro valor, p.ej. 17
-
+ld A, 17													; Si la ciudad resulta 0, mejor le ponemos otro valor, p.ej. 17
 Inicia_caso_valid_city:
 ld hl, CurrentCity
 ld (hl), a
@@ -43,21 +42,54 @@ LD B, A
 PUSH BC
 LD DE, Cities
 CALL Select_elemento
-CALL Print_255_Terminated_with_line_wrap_in_the_printer
+CALL Print_255_Terminated_with_line_wrap_in_the_printer		; pinta la ciudad que ha tocado
 LD DE, Stolen_item_message
-CALL Print_255_Terminated_with_line_wrap_in_the_printer
+CALL Print_255_Terminated_with_line_wrap_in_the_printer		; pinta el mensaje de lo robado
 LD DE, National_treasures
 POP BC
-CALL Select_elemento
+CALL Select_elemento										; selecciona el tesoro robado correspondiente a la ciudad
 CALL Print_255_Terminated_with_line_wrap_in_the_printer
 LD DE, NewLine
 CALL Print_255_Terminated_with_line_wrap_in_the_printer
 CALL Select_next_thief
 LD HL, Current_thief
 LD B, (HL)
-LD DE, Thief_names
+LD DE, Thief_sex
+CALL Select_elemento_por_posicion
+LD A, (DE)
+LD B, A
+PUSH BC														; Se preserva b para más adelante
+LD DE, Sex_texts
 CALL Select_elemento
 CALL Print_255_Terminated_with_line_wrap_in_the_printer
+LD DE, Suspect_message
+CALL Print_255_Terminated_with_line_wrap_in_the_printer
+;;;; QUITAR EN PRODUCCION START
+;LD HL, Current_thief
+;LD B, (HL)
+;LD DE, Thief_names
+;CALL Select_elemento
+;CALL Print_255_Terminated_with_line_wrap_in_the_printer
+;;;; QUITAR EN PRODUCCION END
+ld hl, CurrentCity
+ld a,(hl)
+ld b,a
+;ld b, 26
+push af
+LD DE, Cities
+CALL Select_elemento
+ld h, 69
+CALL Print_255_Terminated_with_line_wrap_in_the_printer		; pinta la ciudad que ha tocado
+LD DE, Hideout_message
+POP AF
+CP 26
+JR NZ, Continua_sin_CR
+INC DE
+Continua_sin_CR:
+POP BC
+CALL Select_elemento
+ld h, 0
+CALL Print_255_Terminated_with_line_wrap_in_the_printer		; pinta el mensaje de la guarida personalizado
 RET
 
 ;########################################################################################################

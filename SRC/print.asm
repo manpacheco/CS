@@ -11,6 +11,7 @@ ROM_PRINT_CURRENT_LINE		EQU 23689				; valor para hacer retorno de carro
 ; PRINT control codes - work with ROM_PRINT and RST 0x10
 ;
 RETORNO_DE_CARRO			EQU 13
+ESPACIO_BAJA_RES			EQU 128
 INK                     	EQU 0x10
 PAPER                   	EQU 0x11
 FLASH                   	EQU 0x12
@@ -410,18 +411,33 @@ RST 0x10
 LD A, (DE)															; Lee el primer carácter
 CP 255																; Compara con 255 que hace de separador
 RET Z																; Si era igual a 255 retorna
+push af								;;;; NEW
+ld a, h								;;;; NEW
+cp 69								;;;; NEW
+pop ix
+ld a, ixh
+JR NZ, Continuar_con_char_13 		;;;; NEW
+CP RETORNO_DE_CARRO													; Ahora compara con 13 (retorno de carro) 
+JR Z, Cargar_espacio 				;;;; NEW
+CP ESPACIO_BAJA_RES
+JR Z, Continua_Print_255_Terminated_with_line_wrap_in_the_printer
+JR Continuar_con_char_13
+Cargar_espacio:
+LD A, 32
+Continuar_con_char_13:
 CP RETORNO_DE_CARRO													; Ahora compara con 13 (retorno de carro) 
 JR Z, Retorno_carro_in_the_printer									; Si era igual al retorno de carro, salta a Retorno_carro
-				
+Continuar_sin_char_13: ;;;; NEW
 PUSH BC																; preserva en pila el registro BC
 PUSH DE																; preserva en pila el registro DE
 RST 0x10
 call Noise															; Imprime el carácter actual
 POP DE																; restaura el registro DE desde la pila
 POP BC																; restaura el registro BC desde la pila
-				
+push hl				
 LD HL, ROM_PRINT_CURRENT_COLUMN										; apunta al indice horizontal de print
 LD A, (HL)															; carga en A el indice horizontal de print
+pop hl
 CP C																; compara con el limite derecho
 JR NC, Continua_Print_255_Terminated_with_line_wrap_in_the_printer	; si es menor o igual, salta a continuar
 			
