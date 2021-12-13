@@ -593,6 +593,7 @@ RST 0x10
 
 LD HL, CurrentCity
 LD A, (HL)
+OR A
 JR Z, Print_city_desc_HQ
 LD B, (HL)
 LD DE, City_descriptions
