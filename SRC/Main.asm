@@ -21,6 +21,9 @@ CALL Pinta_pantalla_juego
 CALL Pinta_imagen_ciudad
 CALL Dibuja_Linea
 CALL Inicia_caso
+CALL Pinta_pantalla_juego
+CALL Pinta_imagen_ciudad
+CALL Dibuja_Linea
 
 MainLoop:
 LD A,5								; carga el color del borde

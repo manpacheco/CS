@@ -42,6 +42,7 @@ LD B, A
 PUSH BC
 LD DE, Cities
 CALL Select_elemento
+ld h, 69
 CALL Print_255_Terminated_with_line_wrap_in_the_printer		; pinta la ciudad que ha tocado
 LD DE, Stolen_item_message
 CALL Print_255_Terminated_with_line_wrap_in_the_printer		; pinta el mensaje de lo robado
@@ -50,6 +51,7 @@ POP BC
 CALL Select_elemento										; selecciona el tesoro robado correspondiente a la ciudad
 CALL Print_255_Terminated_with_line_wrap_in_the_printer
 LD DE, NewLine
+CALL PressAnyKey
 CALL Print_255_Terminated_with_line_wrap_in_the_printer
 CALL Select_next_thief
 LD HL, Current_thief
@@ -89,7 +91,15 @@ Continua_sin_CR:
 POP BC
 CALL Select_elemento
 ld h, 0
-CALL Print_255_Terminated_with_line_wrap_in_the_printer		; pinta el mensaje de la guarida personalizado
+CALL Print_255_Terminated_with_line_wrap_in_the_printer		
+LD DE, NewLine
+CALL PressAnyKey
+CALL Print_255_Terminated_with_line_wrap_in_the_printer
+LD DE, GoodLuck_message
+CALL Print_255_Terminated_with_line_wrap_in_the_printer		
+LD DE, NewLine
+CALL PressAnyKey
+CALL Print_255_Terminated_with_line_wrap_in_the_printer
 RET
 
 ;########################################################################################################
