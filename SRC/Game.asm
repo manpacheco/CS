@@ -39,6 +39,7 @@ ld (hl), a
 ld hl, CurrentEscapeRoute
 LD (HL), A
 LD B, A
+INC B
 PUSH BC
 LD DE, Cities
 CALL Select_elemento
@@ -76,12 +77,13 @@ CALL Print_255_Terminated_with_line_wrap_in_the_printer
 ld hl, CurrentCity
 ld a,(hl)
 ld b,a
+INC B
 ;ld b, 26
 push af
 LD DE, Cities
 CALL Select_elemento
 ld h, 69
-CALL Print_255_Terminated_with_line_wrap_in_the_printer		; pinta la ciudad que ha tocado
+CALL Print_255_Terminated_with_line_wrap_in_the_printer		
 LD DE, Hideout_message
 POP AF
 CP 26
