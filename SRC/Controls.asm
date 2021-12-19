@@ -109,8 +109,20 @@ ld bc, ROW_BNM_SymbolShift_Space
 in a, (c)
 rra
 jr c, NothingPressed
-call Pinta_impresora
-call Pinta_mensaje_impresora
+
+;call Pinta_impresora
+;call Pinta_mensaje_impresora
+
+
+LD HL, CurrentEscapeRoute
+INC HL
+XXXXXXXXXXXXXXXXX:
+LD A, (HL)
+
+LD HL, CurrentCity
+LD (HL), A
+call Refresh_city
+
 JR ScanFinally
 
 NothingPressed:

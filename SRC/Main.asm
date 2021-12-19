@@ -21,10 +21,7 @@ CALL Pinta_pantalla_juego
 CALL Pinta_imagen_ciudad
 CALL Dibuja_Linea
 CALL Inicia_caso
-call Restablecer_valores_por_defecto_recuadros
-CALL Pinta_pantalla_juego
-CALL Pinta_imagen_ciudad
-
+CALL Refresh_city
 
 MainLoop:
 LD A,5								; carga el color del borde
