@@ -60,7 +60,6 @@ ADD HL, DE
 
 LD A, (HL)
 LD HL, CurrentEscapeRoute					; Carga en el registro HL la dirección de la variable de tipo array de bytes de la ruta de escape
-inc hl										; en el segundo paso (escaperoute+1)
 LD (HL), A									; Guarda A (la ciudad que ha tocado) en la primera posición del array
 
 ;; EN ESTE PUNTO EN TEORÍA EN HL ESTÁ APUNTANDO A LAS CONEXIONES DE LA CIUDAD QUE VENÍA EN EL REGISTRO A CON EL OFFSET RANDOM

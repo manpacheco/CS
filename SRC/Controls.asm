@@ -116,7 +116,6 @@ jr c, NothingPressed
 
 LD HL, CurrentEscapeRoute
 INC HL
-XXXXXXXXXXXXXXXXX:
 LD A, (HL)
 
 LD HL, CurrentCity

@@ -540,7 +540,7 @@ ret
 ;#####################################################################################################
 Print_city_text:
 LD HL, CurrentCity
-LD C, 0 											; PARA MEJORAR LA LEGIBILIDAD EN DEPURACIÓN
+LD C, 0 											; PARA MEJORAR LA LEGIBILIDAD EN DEPURACiÓN
 LD B, (HL)											; carga en B EL ÍNDICE DE la ciudad actual
 INC B												; suma 1 al índice de ciudad
 LD DE, Cities										; carga en DE el puntero a ciudades
