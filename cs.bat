@@ -7,6 +7,7 @@ pasmo --name cs --tapbas Main.asm ..\cs.tap --public
 echo Renombrando
 REN --public public.txt
 cd ..
-"C:\Mis programas\Spectaculator\Spectaculator.exe" cs.tap
+rem "C:\Mis programas\Spectaculator\Spectaculator.exe" cs.tap
+"C:\Manuel\Spectrum\spin\zxspin.exe" "C:\Users\Manuel\Desktop\Pr8bcd~1\CSand\cs.tap"
 
 

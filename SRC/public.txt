@@ -42,7 +42,7 @@ CR		EQU 0000CH
 Caracter_relleno EQU 0CA00H
 Cargar_espacio	EQU 0CB6CH
 Carton_bold_font EQU 0C308H
-ChooseRandomForConnection EQU 0C216H
+ChooseRandomForConnection EQU 0C217H
 Cities		EQU 06000H
 City_descriptions EQU 063FFH
 City_print_config EQU 0C9A5H
