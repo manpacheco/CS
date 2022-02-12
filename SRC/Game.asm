@@ -70,10 +70,10 @@ LD (HL), A									; Guarda A (la ciudad que ha tocado) en la primera posición 
 
 inc bc
 ;;pop af
-;;ex af,af'
+ex af,af'
 ;;ld a, c
 ;;cp 5
-;;ex af,af'
+ex af,af'
 ;;jr nz, BucleRutaEscape
 
 POP BC
