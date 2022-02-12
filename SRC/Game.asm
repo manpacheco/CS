@@ -43,7 +43,7 @@ INC B										; Incrementa B porque en el índice de ciudades el 0 es HQ y no v
 PUSH BC										; Preserva BC en la pila
 LD BC, 1									; Se mete 1 en BC para usarlo de contador
 BucleRutaEscape:
-;;push af
+LD IXH, A
 LD DE, Connections							; Carga en DE la dirección de los datos de conexiones entre ciudades
 ;; EN A ESTÁ LA CIUDAD ACTUAL
 DEC A										; Se decrementa porque en connections no empieza por HQ sino que empieza directamente por Athens
@@ -67,14 +67,11 @@ inc hl										; en el segundo paso (escaperoute+1)
 LD (HL), A									; Guarda A (la ciudad que ha tocado) en la primera posición del array
 
 ;; EN ESTE PUNTO EN TEORÍA EN HL ESTÁ APUNTANDO A LAS CONEXIONES DE LA CIUDAD QUE VENÍA EN EL REGISTRO A CON EL OFFSET RANDOM
-
-inc bc
-;;pop af
-ex af,af'
-;;ld a, c
-;;cp 5
-ex af,af'
-;;jr nz, BucleRutaEscape
+INC BC
+LD A, C
+cp 5
+LD A, IXH
+JR NZ, BucleRutaEscape
 
 POP BC
 pop hl
