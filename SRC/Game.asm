@@ -18,10 +18,11 @@ LD (Seed_for_random),HL
 RET
 
 ;########################################################################################################
-;################################### RandomEscapeRoute ####################################################
+;################################# RandomEscapeRoute ####################################################
+;########## genera la ruta de escape del ladrón actual a través de ciudades interconectadas #############
 ;########################################################################################################
 RandomEscapeRoute:
-push hl
+PUSH HL										; PRESERVA EL REGISTRO HL EN LA PILA
 CALL Random									; Se aleatoriza el valor del registro A
 ld a, 3 ; TEST TEST TEST
 AND 31										; Se recorta a 31 como máximo
@@ -32,6 +33,7 @@ JR Z, SpecialBranchRandomEscapeRoute		; Si es 31 salta a rama especial
 JR ContinuarRandomEscapeRoute				; Si no era 0 ni 31, salta a continuar
 SpecialBranchRandomEscapeRoute:
 JR RandomEscapeRoute						; Y salta al inicio de la función
+
 ContinuarRandomEscapeRoute:
 LD HL, CurrentEscapeRoute					; Carga en el registro HL la dirección de la variable de tipo array de bytes de la ruta de escape
 LD (HL), A									; Guarda A (la ciudad que ha tocado) en la primera posición del array
@@ -39,9 +41,9 @@ LD B, A										; Guarda A (la ciudad que ha tocado) en el registro B
 INC B										; Incrementa B porque en el índice de ciudades el 0 es HQ y no vale
 
 PUSH BC										; Preserva BC en la pila
-LD B, 1										;;;;; POR QUÉ METE 1 EN B ???????????
+LD BC, 1									; Se mete 1 en BC para usarlo de contador
 BucleRutaEscape:
-
+;;push af
 LD DE, Connections							; Carga en DE la dirección de los datos de conexiones entre ciudades
 ;; EN A ESTÁ LA CIUDAD ACTUAL
 DEC A										; Se decrementa porque en connections no empieza por HQ sino que empieza directamente por Athens
@@ -51,48 +53,32 @@ LD H, 0										; anula el registro H
 LD L, A										; carga en L el índice de la ciudad actual por 4 (para poder usarlo en el array de conexiones aéreas)
 
 ChooseRandomForConnection:
-CALL Random									; Se genera un random 0-255 en A
-LD A,2 ;TEST TEST TEST TEST
-AND 3										; Se recorta a un random 0-3 en A
-ADD A,L
-LD L, A
-ADD HL, DE
+PUSH HL
+CALL Random									; Se genera un random [0-255] en A
+POP HL
+AND 3										; Se recorta a un random [0-3] en A
+ADD A,L										; Se añade el número random [0-3] a lo que se va a sumar para apuntar a las conexiones de la ciudad seleccionada
+LD L, A										; Se carga el resultado en L
+ADD HL, DE									; Se suma todo en el registro HL
 
-LD A, (HL)
+LD A, (HL)									; Carga en A la ciudad que consta como conexión random de la ciudad seleccionada previamente
 LD HL, CurrentEscapeRoute					; Carga en el registro HL la dirección de la variable de tipo array de bytes de la ruta de escape
 inc hl										; en el segundo paso (escaperoute+1)
 LD (HL), A									; Guarda A (la ciudad que ha tocado) en la primera posición del array
 
 ;; EN ESTE PUNTO EN TEORÍA EN HL ESTÁ APUNTANDO A LAS CONEXIONES DE LA CIUDAD QUE VENÍA EN EL REGISTRO A CON EL OFFSET RANDOM
 
-
-;; ;;; ;;; ;;; ;; ELIGE ENTRE UNO DE LOS DESTINOS
-;; ;;; ;;; ;;; EligeDestino:
-;; ;;; ;;; ;;; PUSH HL
-;; ;;; ;;; ;;; EX DE,HL
-;; ;;; ;;; ;;; CALL Random
-;; ;;; ;;; ;;; EX DE,HL
-;; ;;; ;;; ;;; AND 3
-;; ;;; ;;; ;;; PUSH BC
-;; ;;; ;;; ;;; LD B, 0
-;; ;;; ;;; ;;; LD C, A
-;; ;;; ;;; ;;; ADD HL, BC
-;; ;;; ;;; ;;; LD A, (HL)
-;; ;;; ;;; ;;; CP 255
-;; ;;; ;;; ;;; POP BC
-;; ;;; ;;; ;;; POP HL
-;; ;;; ;;; ;;; JR Z, EligeDestino
-;; ;;; ;;; ;;; 
-;; ;;; ;;; ;;; LD A, (HL)									; Carga en A la nueva ciudad
-;; ;;; ;;; ;;; LD DE, CurrentEscapeRoute
-;; ;;; ;;; ;;; INC DE
-;; ;;; ;;; ;;; LD (DE), A
-;; ;;; ;;; ;;; 
-;; ;;; ;;; ;;; DJNZ BucleRutaEscape
+inc bc
+;;pop af
+;;ex af,af'
+;;ld a, c
+;;cp 5
+;;ex af,af'
+;;jr nz, BucleRutaEscape
 
 POP BC
 pop hl
-
+Comprobar:
 
 RET
 
