@@ -1,3 +1,5 @@
+ESCAPE_ROUTE_LEN EQU 5
+
 ;########################################################################################################
 ;#####                             Random        
 ;#####		parámetro: variable Seed_for_random (en memoria)
@@ -44,7 +46,6 @@ INC B										; Incrementa B porque en el índice de ciudades el 0 es HQ y no v
 PUSH BC										; Preserva BC en la pila
 LD BC, 1									; Se mete 1 en BC para usarlo de contador
 BucleRutaEscape:
-LD IXH, A									; Preserva la ciudad seleccionada en IXH
 LD DE, Connections							; Carga en DE la dirección de los datos de conexiones entre ciudades
 ;; EN A ESTÁ LA CIUDAD ACTUAL
 DEC A										; Se decrementa porque en connections no empieza por HQ sino que empieza directamente por Athens
@@ -63,15 +64,18 @@ LD L, A										; Se carga el resultado en L
 ADD HL, DE									; Se suma todo en el registro HL
 
 LD A, (HL)									; Carga en A la ciudad que consta como conexión random de la ciudad seleccionada previamente
+CP 255										; Comprueba que no sea un valor prohibido (por ser un nodo con solamente 3 aristas)
+JR Z, ChooseRandomForConnection				; si es así, repite el sorteo de conexión aérea
 LD HL, CurrentEscapeRoute					; Carga en el registro HL la dirección de la variable de tipo array de bytes de la ruta de escape
-inc hl										; en el segundo paso (escaperoute+1)
+ADD HL, BC
 LD (HL), A									; Guarda A (la ciudad que ha tocado) en la primera posición del array
 
 ;; EN ESTE PUNTO EN TEORÍA EN HL ESTÁ APUNTANDO A LAS CONEXIONES DE LA CIUDAD QUE VENÍA EN EL REGISTRO A CON EL OFFSET RANDOM
 INC BC
+LD IXL, A
 LD A, C
-CP 3 										; Comprueba si se ha llegado al número de iteraciones
-LD A, IXH
+CP ESCAPE_ROUTE_LEN 						; Comprueba si se ha llegado al número de iteraciones
+LD A, IXL
 JR NZ, BucleRutaEscape
 
 POP BC
