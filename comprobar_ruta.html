@@ -1,0 +1,64 @@
+<html>
+<script>var matriz =[
+2	,	20	,	14	,	22,
+27	,	1	,	30	,	8,
+26	,	11	,	9	,	14,
+27	,	12	,	16	,	7,
+7	,	8	,	10	,	23,
+30	,	24	,	7	,	255,
+5	,	14	,	6	,	4,
+13	,	5	,	11	,	2,
+10	,	25	,	3	,	27,
+9	,	21	,	5	,	255,
+12	,	3	,	8	,	255,
+11	,	4	,	20	,	255,
+8	,	15	,	17	,	255,
+15	,	7	,	1	,	3,
+14	,	13	,	28	,	255,
+17	,	19	,	4	,	255,
+16	,	22	,	13	,	255,
+19	,	28	,	21	,	255,
+18	,	16	,	24	,	255,
+21	,	1	,	12	,	255,
+20	,	10	,	18	,	255,
+23	,	17	,	25	,	1,
+22	,	26	,	29	,	5,
+25	,	6	,	19	,	255,
+24	,	9	,	22	,	255,
+3	,	23	,	30	,	255,,
+4	,	29	,	2	,	9,
+29	,	18	,	15	,	255,
+28	,	27	,	23	,	255,
+6	,	2	,	26	,	255];
+
+function ciudades_destino(ciudad_origen)
+{
+	var puesto=(ciudad_origen-1)*4;
+	var resultado= [matriz[puesto],matriz[puesto+1],matriz[puesto+2],matriz[puesto+3]];
+	return resultado
+}
+
+function comprueba_ruta(ruta)
+{
+	var contador_etapa=0;
+	var correcta=true;
+	if ((contador_etapa === 0 || correcta ) && contador_etapa<ruta.length)
+	{
+		console.debug('Buscando hex '+ruta[contador_etapa+1]+' en '+ ciudades_destino(ruta[contador_etapa]));
+		console.debug('Buscando dec '+parseInt(ruta[contador_etapa+1],16)+' en '+ ciudades_destino(parseInt(ruta[contador_etapa],16)));
+		if (!ciudades_destino(parseInt(ruta[contador_etapa], 16)).includes(parseInt(ruta[contador_etapa+1], 16)))
+		{
+			correcta=false;
+		}
+		contador_etapa++;
+	}
+	return correcta;
+}
+</script>
+<body style="background:#000">
+<input id="input_texto" placeholder="<< ruta aqu&iacute; >>" type="text" style="font-size: 20px;height: 2em;width: 100%;">
+<input tabindex="1" type="button" style="font-size: 20px;height: 2em;width: 100%;" onclick="document.getElementById('output').innerHTML=comprueba_ruta(document.getElementById('input_texto').value.split(' '));">comprobar</input>
+<div style="color:white;font-size: 32px;height: 2em;width: 100%;" id="output"></div>
+</body>
+
+</html>

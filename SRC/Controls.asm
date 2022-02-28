@@ -132,6 +132,7 @@ RET
 
 ; ##########################################################
 ; ###############     PressAnyKey       ####################
+; ###############     Sobreescribe HL, AF, AF'   ###########
 ; ##########################################################
 ; Espera a que se pulse una tecla y además devuelve un numero random en AF'
 

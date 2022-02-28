@@ -1,4 +1,5 @@
-ESCAPE_ROUTE_LEN EQU 5
+ESCAPE_ROUTE_LEN 		EQU 5
+VALOR_CIUDAD_MARCADA 	EQU 85
 
 ;########################################################################################################
 ;#####                             Random        
@@ -22,12 +23,21 @@ RET
 ;########################################################################################################
 ;################################# RandomEscapeRoute ####################################################
 ;########## genera la ruta de escape del ladrón actual a través de ciudades interconectadas #############
+;########## Parámetros: ninguno		   														#############
 ;########## Usa: AF, BC, HL, DE, IXH														#############
 ;########################################################################################################
 RandomEscapeRoute:
+LD B, 32
+LD HL, LIVE_SCREEN_ADDRESS
+limpia_buffer_vram:
+ld (hl),255
+inc hl
+djnz limpia_buffer_vram
+
+
 PUSH HL										; PRESERVA EL REGISTRO HL EN LA PILA
 CALL Random									; Se aleatoriza el valor del registro A
-ld a, 3 ; TEST TEST TEST
+ld a, 10 ; TEST TEST TEST
 AND 31										; Se recorta a 31 como máximo
 OR A										; Se compara con 0
 JR Z, SpecialBranchRandomEscapeRoute		; Si es 0 salta a rama especial
@@ -38,6 +48,7 @@ SpecialBranchRandomEscapeRoute:
 JR RandomEscapeRoute						; Y salta al inicio de la función
 
 ContinuarRandomEscapeRoute:
+Call MarcaCiudadComoUsada
 LD HL, CurrentEscapeRoute					; Carga en el registro HL la dirección de la variable de tipo array de bytes de la ruta de escape
 LD (HL), A									; Guarda A (la ciudad que ha tocado) en la primera posición del array
 LD B, A										; Guarda A (la ciudad que ha tocado) en el registro B
@@ -46,6 +57,18 @@ INC B										; Incrementa B porque en el índice de ciudades el 0 es HQ y no v
 PUSH BC										; Preserva BC en la pila
 LD BC, 1									; Se mete 1 en BC para usarlo de contador
 BucleRutaEscape:
+push hl
+push af
+ex af, af'
+push af
+ex af, af'
+CALL PressAnyKey ; TEST TEST TEST
+ex af, af'
+pop af
+ex af, af'
+pop af
+pop hl
+
 LD DE, Connections							; Carga en DE la dirección de los datos de conexiones entre ciudades
 ;; EN A ESTÁ LA CIUDAD ACTUAL
 DEC A										; Se decrementa porque en connections no empieza por HQ sino que empieza directamente por Athens
@@ -65,10 +88,15 @@ ADD HL, DE									; Se suma todo en el registro HL
 
 LD A, (HL)									; Carga en A la ciudad que consta como conexión random de la ciudad seleccionada previamente
 CP 255										; Comprueba que no sea un valor prohibido (por ser un nodo con solamente 3 aristas)
-JR Z, ChooseRandomForConnection				; si es así, repite el sorteo de conexión aérea
+JR Z, RebootRandomEscapeRoute
+
 LD HL, CurrentEscapeRoute					; Carga en el registro HL la dirección de la variable de tipo array de bytes de la ruta de escape
 ADD HL, BC
 LD (HL), A									; Guarda A (la ciudad que ha tocado) en la primera posición del array
+Call MarcaCiudadComoUsada
+EX AF, AF'
+JR Z, RebootRandomEscapeRoute
+EX AF, AF'
 
 ;; EN ESTE PUNTO EN TEORÍA EN HL ESTÁ APUNTANDO A LAS CONEXIONES DE LA CIUDAD QUE VENÍA EN EL REGISTRO A CON EL OFFSET RANDOM
 INC BC
@@ -80,8 +108,43 @@ JR NZ, BucleRutaEscape
 
 POP BC
 POP HL
-Comprobar:
+RET
 
+RebootRandomEscapeRoute:
+POP BC
+POP HL
+JR RandomEscapeRoute
+
+;########################################################################################################
+;###############################   MarcaCiudadComoUsada  ################################################
+;## Se marca el índice de la ciudad en la memoria de video para no repetir ninguna ######################
+;## DEVUELVE EN AF' la comparación con la marca ######################
+;########################################################################################################
+MarcaCiudadComoUsada:
+PUSH HL
+PUSH BC
+
+LD HL, LIVE_ATTRIBUTES_ADDRESS
+LD (HL),32
+LD B, 15
+cuadros:
+inc hl
+inc hl
+ld (hl),32
+djnz cuadros
+
+LD HL, LIVE_SCREEN_ADDRESS
+LD B, 0
+LD C, A
+ADD HL, BC
+EX AF, AF'
+LD A, (HL)
+CP VALOR_CIUDAD_MARCADA
+EX AF, AF'
+LD (HL), VALOR_CIUDAD_MARCADA
+LD HL, LIVE_SCREEN_ADDRESS
+POP BC
+POP HL
 RET
 
 ;########################################################################################################
