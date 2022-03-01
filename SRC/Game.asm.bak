@@ -1,5 +1,8 @@
-ESCAPE_ROUTE_LEN 		EQU 5
-VALOR_CIUDAD_MARCADA 	EQU 85
+ESCAPE_ROUTE_LEN 			EQU 5
+VALOR_CIUDAD_MARCADA 		EQU 85
+ANCHURA_PANTALLA_COLUMNAS 	EQU 32
+PAPEL_BLANCO_TINTA_BLANCA 	EQU 63
+
 
 ;########################################################################################################
 ;#####                             Random        
@@ -21,21 +24,29 @@ LD (Seed_for_random),HL
 RET
 
 ;########################################################################################################
+;################################# limpia_buffer_vram ####################################################
+;########## genera la ruta de escape del ladrón actual a través de ciudades interconectadas #############
+;########## Parámetros: ninguno		   														#############
+;########## Usa: BC, HL																		#############
+;########################################################################################################
+limpia_buffer_vram:
+LD B, 32
+LD HL, LIVE_SCREEN_ADDRESS
+bucle_limpia_buffer_vram:
+LD (HL),0
+INC HL
+DJNZ bucle_limpia_buffer_vram
+RET
+
+;########################################################################################################
 ;################################# RandomEscapeRoute ####################################################
 ;########## genera la ruta de escape del ladrón actual a través de ciudades interconectadas #############
 ;########## Parámetros: ninguno		   														#############
 ;########## Usa: AF, BC, HL, DE, IXH														#############
 ;########################################################################################################
 RandomEscapeRoute:
-LD B, 31
-LD HL, LIVE_SCREEN_ADDRESS
-limpia_buffer_vram:
-ld (hl),255
-inc hl
-djnz limpia_buffer_vram
-
-
 PUSH HL										; PRESERVA EL REGISTRO HL EN LA PILA
+CALL limpia_buffer_vram
 CALL Random									; Se aleatoriza el valor del registro A
 ld a, 10 ; TEST TEST TEST
 AND 31										; Se recorta a 31 como máximo
@@ -57,17 +68,6 @@ INC B										; Incrementa B porque en el índice de ciudades el 0 es HQ y no v
 PUSH BC										; Preserva BC en la pila
 LD BC, 1									; Se mete 1 en BC para usarlo de contador
 BucleRutaEscape:
-push hl
-push af
-ex af, af'
-push af
-ex af, af'
-CALL PressAnyKey ; TEST TEST TEST
-ex af, af'
-pop af
-ex af, af'
-pop af
-pop hl
 
 LD DE, Connections							; Carga en DE la dirección de los datos de conexiones entre ciudades
 ;; EN A ESTÁ LA CIUDAD ACTUAL
@@ -125,13 +125,11 @@ PUSH HL
 PUSH BC
 
 LD HL, LIVE_ATTRIBUTES_ADDRESS
-LD (HL),32
-LD B, 15
+LD B, ANCHURA_PANTALLA_COLUMNAS
 cuadros:
-inc hl
-inc hl
-ld (hl),32
-djnz cuadros
+LD (HL),0
+INC HL
+DJNZ cuadros
 
 LD HL, LIVE_SCREEN_ADDRESS
 LD B, 0
