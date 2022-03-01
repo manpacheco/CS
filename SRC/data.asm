@@ -36,6 +36,7 @@ Ranks: db 32,13,"Rookie",255,13,"Sleuth",255,13,"Private eye",255,13,"Investigat
 Suspect_message: db " suspect at the scene",13,"of the crime.", 13,13,"Track the",13,"thief from",13,255
 Hideout_message: db " ",13,"to his hideoutand arrest him",255, 13,"to her hideoutand arrest her",255
 GoodLuck_message: db "You must",13,"apprehend the thief by",13,"Sunday, 5 p.m.",13,13,"  Good luck",255
+Next_step_message: db " Use O-P SPACE to  select your next",13," step", 255
 NewLine: db 13,13,255
 ;0 cases solved = rookie
 ;1-3 cases solved = sleuth

@@ -2,7 +2,7 @@ ESCAPE_ROUTE_LEN 			EQU 5
 VALOR_CIUDAD_MARCADA 		EQU 85
 ANCHURA_PANTALLA_COLUMNAS 	EQU 32
 PAPEL_BLANCO_TINTA_BLANCA 	EQU 63
-
+CURSOR_POR_DEFECTO			EQU 2
 
 ;########################################################################################################
 ;#####                             Random        
@@ -152,6 +152,15 @@ Refresh_city:
 CALL Restablecer_valores_por_defecto_recuadros
 CALL Pinta_pantalla_juego
 CALL Pinta_imagen_ciudad
+
+LD B, 13
+LD C, 3
+LD DE, NewLine
+CALL Print_255_Terminated_with_line_wrap
+LD DE, NewLine
+CALL Print_255_Terminated_with_line_wrap
+LD DE, Next_step_message
+CALL Print_255_Terminated_with_line_wrap
 RET
 
 ;########################################################################################################
@@ -169,6 +178,7 @@ LD DE, Flash_message
 CALL Print_255_Terminated_with_line_wrap_in_the_printer
 
 CALL RandomEscapeRoute
+
 PUSH BC
 LD HL, CurrentEscapeRoute
 LD A, (HL)
@@ -229,6 +239,8 @@ CALL Print_255_Terminated_with_line_wrap_in_the_printer
 LD DE, NewLine
 CALL PressAnyKey
 CALL Print_255_Terminated_with_line_wrap_in_the_printer
+
+
 RET
 
 ;########################################################################################################
