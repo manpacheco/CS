@@ -365,7 +365,7 @@ LD A, 1
 bucle_externo_world_map:
 LD B, 256
 bucle_world_map:
-LD (HL), 40
+LD (HL), 48
 INC HL
 DJNZ bucle_world_map
 DEC A

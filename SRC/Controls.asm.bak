@@ -118,9 +118,9 @@ LD HL, Cursor
 LD A,(HL)
 CP 3
 CALL Z,  ArrestTron
-CP 2
+DEC A
 CALL Z,  Enquire
-CP 1
+DEC A
 CALL Z, Depart
 JR ScanFinally
 

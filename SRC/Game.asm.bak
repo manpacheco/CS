@@ -277,13 +277,3 @@ Fija_ladron_activo:
 LD HL, Current_thief
 LD (HL), A
 RET
-
-Depart:
-CALL World_map
-RET
-
-Enquire:
-RET
-
-ArrestTron:
-RET
