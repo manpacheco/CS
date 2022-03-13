@@ -1,5 +1,5 @@
 @echo off
-"C:\Manuel\Spectrum\ZX0-main\win\zx0" world_def.scr
+"C:\Manuel\Spectrum\ZX0-main\win\zx0" world_fdef.scr
 rem "C:\Manuel\Spectrum\ZX0-main\win\zx0" start.scr
 rem "C:\Manuel\Spectrum\ZX0-main\win\zx0" From_01_to_06.scr
 rem "C:\Manuel\Spectrum\ZX0-main\win\zx0" From_07_to_12.scr

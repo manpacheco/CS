@@ -280,6 +280,17 @@ RET
 
 Depart:
 CALL World_map
+LD HL, Window_y_inicial
+LD (HL), 2
+LD HL, Window_x_inicial
+LD (HL), 0
+ld hl, Window_y_final_m_1
+LD (HL), 6
+ld hl, Window_x_final_m_1
+LD (HL), 10
+call Pinta_recuadro
+LD DE, Menu							; Carga en el registro DE la dirección de la cadena del menú superior
+CALL Print_255_Terminated			; Pinta el menú superior
 RET
 
 Enquire:
