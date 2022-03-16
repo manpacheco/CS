@@ -244,7 +244,7 @@ CALL Print_255_Terminated_with_line_wrap_in_the_printer
 RET
 
 ;########################################################################################################
-;################################### Select_next_thief ####################################################
+;################################### Select_next_thief ##################################################
 ;########################################################################################################
 Select_next_thief:
 ; SELECCIONAR LADRON
@@ -278,6 +278,10 @@ LD HL, Current_thief
 LD (HL), A
 RET
 
+
+;########################################################################################################
+;###################################      Depart       ##################################################
+;########################################################################################################
 Depart:
 CALL World_map
 LD HL, Window_y_inicial
@@ -287,8 +291,60 @@ LD (HL), 0
 ld hl, Window_y_final_m_1
 LD (HL), 6
 ld hl, Window_x_final_m_1
-LD (HL), 10
+LD (HL), 31
+ld hl, Caracter_relleno								; Carga en HL la dirección del caracter de relleno
+ld (hl), CARACTER_TODO_RELLENO						; Carga en la dirección del caracter de relleno el caracter todo relleno
 call Pinta_recuadro
+LD DE, Menu							; Carga en el registro DE la dirección de la cadena del menú superior
+CALL Print_255_Terminated			; Pinta el menú superior
+
+LD DE, City_origin
+CALL Print_255_Terminated
+LD DE, Cities
+LD B, 26
+CALL Select_elemento
+LD B,1
+LD C,13
+CALL Print_255_Terminated_with_line_wrap
+
+LD DE,City_destination1
+CALL Print_255_Terminated
+LD DE, Cities
+LD B, 26
+CALL Select_elemento
+CALL Print_flat_255_Terminated
+
+LD DE,City_destination2
+CALL Print_255_Terminated
+LD DE, Cities
+LD B, 21
+CALL Select_elemento
+CALL Print_255_Terminated
+
+LD DE,City_destination3
+CALL Print_255_Terminated
+LD DE, Cities
+LD B, 8
+CALL Select_elemento
+CALL Print_255_Terminated
+
+LD DE,City_destination4
+CALL Print_255_Terminated
+LD DE, Cities
+LD B, 29
+CALL Select_elemento
+CALL Print_255_Terminated
+RET
+
+
+Plot:
+; This is the simplest to use of all the routines. The easiest method of using this routine is to call it from location #22E5 (8933 decimal). 
+; On entry, the routine expects to have the x, y co-ordinates of the point to be plotted in the BC register pair, so to plot a point equivalent to Basic's, Piot 100,90 we only need to write
+; LD BC, 5A64 ; Plot 100, 90
+; CALL #22E5	;call Plot ROM routine
+RET				;return to Basic
+
+Fly:
 RET
 
 Enquire:
