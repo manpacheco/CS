@@ -298,40 +298,74 @@ call Pinta_recuadro
 LD DE, Menu							; Carga en el registro DE la dirección de la cadena del menú superior
 CALL Print_255_Terminated			; Pinta el menú superior
 
+;; CIUDAD DE ORIGEN (A LA IZQUIERDA)
 LD DE, City_origin
 CALL Print_255_Terminated
 LD DE, Cities
-LD B, 26
+LD HL, CurrentCity
+LD B, (HL)
+
+LD A, (HL)									; SE guarda la ciudad actual en A que luego será A'
+PUSH AF
+INC B
 CALL Select_elemento
 LD B,1
 LD C,13
 CALL Print_255_Terminated_with_line_wrap
 
+;; PRIMERA CIUDAD DESTINO
 LD DE,City_destination1
 CALL Print_255_Terminated
+
+debug_01:
+POP AF
+DEC A										; Se decrementa porque en connections no empieza por HQ sino que empieza directamente por Athens
+SLA A										; multiplica por 2
+SLA A										; multiplica por 2 (acumulado por 4)
+LD h,0
+LD L, A										; carga en L el índice de la ciudad actual por 4 (para poder usarlo en el array de conexiones aéreas)
+LD DE, Connections
+ADD HL, DE
+
+LD B, (hl)
 LD DE, Cities
-LD B, 26
+INC B
 CALL Select_elemento
 CALL Print_flat_255_Terminated
 
+;; SEGUNDA CIUDAD DESTINO
 LD DE,City_destination2
 CALL Print_255_Terminated
+
+INC HL
+LD B, (HL)
 LD DE, Cities
-LD B, 21
+INC B
 CALL Select_elemento
 CALL Print_flat_255_Terminated
 
+;; TERCERA CIUDAD DESTINO
 LD DE,City_destination3
 CALL Print_255_Terminated
+
+INC HL
+LD B, (HL)
 LD DE, Cities
-LD B, 8
+INC B
 CALL Select_elemento
 CALL Print_flat_255_Terminated
 
+;; CUARTA CIUDAD DESTINO (OPCIONAL)
 LD DE,City_destination4
 CALL Print_255_Terminated
+
+INC HL
+LD B, (HL)
+LD A, B
+CP 255
+RET Z
 LD DE, Cities
-LD B, 29
+INC B
 CALL Select_elemento
 CALL Print_flat_255_Terminated
 RET
