@@ -24,14 +24,14 @@ CALL Inicia_caso
 CALL Refresh_city
 
 MainLoop:
-LD A,5								; carga el color del borde
-OUT (254),A
+;LD A,5								; carga el color del borde
+;OUT (254),A
 HALT
 
 CALL ScanAllKeys					; lee las teclas
-LD A,1								; 1 is the code for blue
-OUT (254),A
-HALT
+;LD A,1								; 1 is the code for blue
+;OUT (254),A
+;HALT
 JR MainLoop
 RET
 
@@ -48,15 +48,17 @@ incbin "From_25_to_30.scr.zx0"
 PantallaWorld:
 incbin "world.scr.zx0"
 include "dzx0_standard.asm"
-include "Controls.asm"
-include "Sound.asm"
-include "Game.asm"
+include "menu.asm"
+include "controls.asm"
+include "sound.asm"
+include "game.asm"
 Carton_bold_font:
-include "Carton_bold_font.asm"
+include "carton_bold_font.asm"
 include "screens.asm"
-include "Buttons.asm"
-include "Printer.asm"
+include "buttons.asm"
+include "printer.asm"
 include "print.asm"
+
 Last_position:
 
 end Main

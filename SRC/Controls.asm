@@ -68,11 +68,8 @@ jr nc, ScanFinally
 inc a
 ld (hl), a
 halt
-call Restablecer_valores_por_defecto_recuadros
-CALL Pinta_boton_Elegir_destino		; Pinta el botón con el avión
-CALL Pinta_boton_Lupa				; Pinta el boton de la lupa para las pistas
-CALL Pinta_boton_Ordenador			; Pinta el boton del ordenador para la orden de arresto
-call PintaCursor
+call Pinta_menu
+
 
 ;;;; CALL FUNCION RIGHT
 ;jr ScanFinally
@@ -94,11 +91,7 @@ jr c, ScanFinally
 dec a
 ld (hl), a
 halt
-call Restablecer_valores_por_defecto_recuadros
-CALL Pinta_boton_Elegir_destino		; Pinta el botón con el avión
-CALL Pinta_boton_Lupa				; Pinta el boton de la lupa para las pistas
-CALL Pinta_boton_Ordenador			; Pinta el boton del ordenador para la orden de arresto
-call PintaCursor
+call Pinta_menu
 
 ;;;; CALL FUNCION LEFT
 

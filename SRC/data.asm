@@ -58,6 +58,7 @@ Current_rank: db 0 ; [0-4]
 CurrentCountry: db 28
 CurrentWeekday: db 3 ; EMPIEZA EN 1
 CurrentHour: db "0900",255
+Current_menu: db 1
 ;Estado actual
 Seed_for_random dw 0
 Suspect: db 99
@@ -68,4 +69,10 @@ CurrentCity: db 0 ; rango [1,30]
 CurrentEscapeRoute: db 0,0,0,0,0 ; rango [1,30]
 CurrenCityConfigOffsetX: db 0,10,20,0,10,20
 CurrenCityConfigOffsetY: db 0,0,0,128,128,128
+Menu_counter: db 0
+;; Menu_position: DB AT
+;; Menu_position_x: DB 3
+;; Menu_position_y: DB 14
+;; Menu_position_end: DB 255
+;; Menu_options: dw 0,0,0,0,0,0
 Fin_city_descriptions:

@@ -70,12 +70,8 @@ LD BC, 1									; Se mete 1 en BC para usarlo de contador
 BucleRutaEscape:
 
 LD DE, Connections							; Carga en DE la dirección de los datos de conexiones entre ciudades
-;; EN A ESTÁ LA CIUDAD ACTUAL
-DEC A										; Se decrementa porque en connections no empieza por HQ sino que empieza directamente por Athens
-SLA A										; multiplica por 2
-SLA A										; multiplica por 2 (acumulado por 4)
-LD H, 0										; anula el registro H
-LD L, A										; carga en L el índice de la ciudad actual por 4 (para poder usarlo en el array de conexiones aéreas)
+
+call set_HL_with_value_to_add_to_connections_pointer_for_city_in_A_position
 
 ChooseRandomForConnection:
 PUSH HL
@@ -114,6 +110,22 @@ RebootRandomEscapeRoute:
 POP BC
 POP HL
 JR RandomEscapeRoute
+
+
+;########################################################################################################
+;#####   set_HL_with_value_to_add_to_connections_pointer_for_city_in_A_position  ########################
+;#####		parámetro: ciudad en registro A
+;#####		salida: en el registro HL se guarda un puntero a las conexiones de la ciudad A-ésima
+;#####		usa registros: AF, HL
+;########################################################################################################
+set_HL_with_value_to_add_to_connections_pointer_for_city_in_A_position:
+;; EN A ESTÁ LA CIUDAD ACTUAL
+DEC A										; Se decrementa porque en connections no empieza por HQ sino que empieza directamente por Athens
+SLA A										; multiplica por 2
+SLA A										; multiplica por 2 (acumulado por 4)
+LD H, 0										; anula el registro H
+LD L, A										; carga en L el índice de la ciudad actual por 4 (para poder usarlo en el array de conexiones aéreas)
+RET
 
 ;########################################################################################################
 ;###############################   MarcaCiudadComoUsada  ################################################
@@ -283,6 +295,8 @@ RET
 ;###################################      Depart       ##################################################
 ;########################################################################################################
 Depart:
+ld hl, Current_menu
+ld (hl),2
 CALL World_map
 LD HL, Window_y_inicial
 LD (HL), 2
@@ -298,32 +312,51 @@ call Pinta_recuadro
 LD DE, Menu							; Carga en el registro DE la dirección de la cadena del menú superior
 CALL Print_255_Terminated			; Pinta el menú superior
 
+
+;ld hl, Cursor
+;ld (hl), 0
+
+
+;ld hl, Cursor
+;ld a,(hl)
 ;; CIUDAD DE ORIGEN (A LA IZQUIERDA)
+
+
+
 LD DE, City_origin
 CALL Print_255_Terminated
+
 LD DE, Cities
 LD HL, CurrentCity
 LD B, (HL)
 
 LD A, (HL)									; SE guarda la ciudad actual en A que luego será A'
-PUSH AF
+
 INC B
 CALL Select_elemento
 LD B,1
 LD C,13
 CALL Print_255_Terminated_with_line_wrap
 
+CALL Pinta_ciudades_destino
+RET
+
+
+
+;########################################################################################################
+;############################      Pinta_ciudades_destino       #########################################
+;########## Parámetros: 		   														#############
+;########## Usa: DE																		#############
+;########################################################################################################
+;########################################################################################################
+Pinta_ciudades_destino:
 ;; PRIMERA CIUDAD DESTINO
 LD DE,City_destination1
 CALL Print_255_Terminated
 
-debug_01:
-POP AF
-DEC A										; Se decrementa porque en connections no empieza por HQ sino que empieza directamente por Athens
-SLA A										; multiplica por 2
-SLA A										; multiplica por 2 (acumulado por 4)
-LD h,0
-LD L, A										; carga en L el índice de la ciudad actual por 4 (para poder usarlo en el array de conexiones aéreas)
+LD HL, CurrentCity
+LD A, (HL)									
+CALL set_HL_with_value_to_add_to_connections_pointer_for_city_in_A_position
 LD DE, Connections
 ADD HL, DE
 
@@ -333,6 +366,7 @@ INC B
 CALL Select_elemento
 CALL Print_flat_255_Terminated
 
+;call Print_highligthed
 ;; SEGUNDA CIUDAD DESTINO
 LD DE,City_destination2
 CALL Print_255_Terminated
@@ -344,7 +378,10 @@ INC B
 CALL Select_elemento
 CALL Print_flat_255_Terminated
 
+
+
 ;; TERCERA CIUDAD DESTINO
+;call Print_white
 LD DE,City_destination3
 CALL Print_255_Terminated
 
@@ -362,6 +399,8 @@ CALL Print_255_Terminated
 INC HL
 LD B, (HL)
 LD A, B
+
+compara255:
 CP 255
 RET Z
 LD DE, Cities
