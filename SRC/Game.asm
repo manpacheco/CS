@@ -313,15 +313,15 @@ LD DE, Menu							; Carga en el registro DE la dirección de la cadena del menú
 CALL Print_255_Terminated			; Pinta el menú superior
 
 
-;ld hl, Cursor
-;ld (hl), 0
-
-
-;ld hl, Cursor
-;ld a,(hl)
-;; CIUDAD DE ORIGEN (A LA IZQUIERDA)
-
-
+ld c, 0 ; se compara primero con 1
+push hl
+ld hl, Cursor
+ld a, (hl)
+pop hl
+cp c
+jr NZ, Continuar_ciudad_origen
+call Print_highligthed
+Continuar_ciudad_origen:
 
 LD DE, City_origin
 CALL Print_255_Terminated
@@ -338,6 +338,12 @@ LD B,1
 LD C,13
 CALL Print_255_Terminated_with_line_wrap
 
+;;; RESETEAR CURSOR ??
+
+
+LD HL, Cursor
+LD (HL), 2	; Valor por defecto = 1
+
 CALL Pinta_ciudades_destino
 RET
 
@@ -346,11 +352,20 @@ RET
 ;########################################################################################################
 ;############################      Pinta_ciudades_destino       #########################################
 ;########## Parámetros: 		   														#############
-;########## Usa: DE																		#############
+;########## Usa: AF, DE, HL																#############
 ;########################################################################################################
 ;########################################################################################################
 Pinta_ciudades_destino:
 ;; PRIMERA CIUDAD DESTINO
+ld c, 2 ; se compara después con 2
+
+ld hl, Cursor
+ld a, (hl)
+cp c
+jr NZ, Continuar_primera_ciudad
+call Print_highligthed
+Continuar_primera_ciudad:
+inc c
 LD DE,City_destination1
 CALL Print_255_Terminated
 
@@ -365,9 +380,19 @@ LD DE, Cities
 INC B
 CALL Select_elemento
 CALL Print_flat_255_Terminated
+call Print_white
 
-;call Print_highligthed
 ;; SEGUNDA CIUDAD DESTINO
+push hl
+ld hl, Cursor
+ld a, (hl)
+cp c
+jr NZ, Continuar_segunda_ciudad
+call Print_highligthed
+
+Continuar_segunda_ciudad:
+pop hl
+inc c
 LD DE,City_destination2
 CALL Print_255_Terminated
 
@@ -377,11 +402,19 @@ LD DE, Cities
 INC B
 CALL Select_elemento
 CALL Print_flat_255_Terminated
-
-
+call Print_white
 
 ;; TERCERA CIUDAD DESTINO
-;call Print_white
+push hl
+ld hl, Cursor
+ld a, (hl)
+cp c
+jr NZ, Continuar_tercera_ciudad
+call Print_highligthed
+
+Continuar_tercera_ciudad:
+pop hl
+inc c
 LD DE,City_destination3
 CALL Print_255_Terminated
 
@@ -392,7 +425,21 @@ INC B
 CALL Select_elemento
 CALL Print_flat_255_Terminated
 
+call Print_white
+
+
 ;; CUARTA CIUDAD DESTINO (OPCIONAL)
+
+push hl
+ld hl, Cursor
+ld a, (hl)
+cp c
+jr NZ, Continuar_cuarta_ciudad
+call Print_highligthed
+
+Continuar_cuarta_ciudad:
+pop hl
+inc c
 LD DE,City_destination4
 CALL Print_255_Terminated
 
