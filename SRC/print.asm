@@ -40,7 +40,7 @@ PRINTER_BASE_X				EQU 15
 PRINTER_BASE_Y				EQU 15
 TAM_WEEKDAYS				EQU 4
 Menu:						DB AT, 1, 0, PAPER, 7, INK, 2, " G", INK, 0, "ame  ", INK, 2, "O", INK, 0, "ptions  ", INK, 2, "A", INK, 0, "cme  ", INK, 2, "D", INK, 0, "ossiers ",255
-City_origin:				DB AT, 4, 2, PAPER, 0, INK, 7, 255
+City_origin:				DB AT, 4, 2, 255
 City_destination1:			DB AT, 3, 15, 255
 City_destination2:			DB AT, 4, 15, 255
 City_destination3:			DB AT, 5, 15, 255
@@ -623,6 +623,10 @@ RET
 ;#####				Print_white
 ;#####################################################################################################
 Print_white:
+LD A, PAPER 
+RST 0x10
+LD A, BLACK
+RST 0x10
 LD A, INK 
 RST 0x10
 LD A, WHITE

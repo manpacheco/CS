@@ -295,6 +295,10 @@ RET
 ;###################################      Depart       ##################################################
 ;########################################################################################################
 Depart:
+LD HL, Cursor
+LD (HL), 3	; Valor por defecto = 3
+ld hl, Cursor_max
+ld (hl), 5
 ld hl, Current_menu
 ld (hl),2
 CALL World_map
@@ -313,11 +317,12 @@ LD DE, Menu							; Carga en el registro DE la dirección de la cadena del menú
 CALL Print_255_Terminated			; Pinta el menú superior
 
 
-ld c, 0 ; se compara primero con 1
+ld c, 3 ; se compara primero con 1
 push hl
 ld hl, Cursor
 ld a, (hl)
 pop hl
+call Print_white
 cp c
 jr NZ, Continuar_ciudad_origen
 call Print_highligthed
@@ -338,16 +343,10 @@ LD B,1
 LD C,13
 CALL Print_255_Terminated_with_line_wrap
 
-;;; RESETEAR CURSOR ??
-
-
-LD HL, Cursor
-LD (HL), 2	; Valor por defecto = 1
+;;;; 12/05 HAY QUE METER PINTA_CIUDAD_ORIGEN en una función para que se pueda llamar desde otros sitios
 
 CALL Pinta_ciudades_destino
 RET
-
-
 
 ;########################################################################################################
 ;############################      Pinta_ciudades_destino       #########################################
@@ -357,7 +356,7 @@ RET
 ;########################################################################################################
 Pinta_ciudades_destino:
 ;; PRIMERA CIUDAD DESTINO
-ld c, 2 ; se compara después con 2
+ld c, 3 ; se compara después con 2
 
 ld hl, Cursor
 ld a, (hl)

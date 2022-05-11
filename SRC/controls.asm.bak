@@ -110,9 +110,9 @@ jr c, NothingPressed
 LD HL, Cursor
 LD A,(HL)
 CP 3
-CALL Z,  ArrestTron
+CALL Z, ArrestTron
 CP 2
-CALL Z,  Enquire
+CALL Z, Enquire
 CP 1
 CALL Z, Depart
 JR ScanFinally

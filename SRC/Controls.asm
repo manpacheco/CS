@@ -61,9 +61,12 @@ in a,(c)					; a la instrucción IN solo se le pasa la parte explicitamente el r
 rra							; nos quedamos con el valor del bit más bajo
 jr c, ScanLeft				; si hay carry significa que la tecla no estaba pulsada
 
+ld hl, Cursor_max
+ld b, (hl)
 ld hl, Cursor
 ld a, (hl)
-cp 3
+;cp 3
+cp b
 jr nc, ScanFinally
 inc a
 ld (hl), a

@@ -63,7 +63,6 @@ Current_menu: db 1
 Seed_for_random dw 0
 Suspect: db 99
 Cursor: db 1
-Cursor_max: db 3
 Aux_screen_horizontal_offset: db 0 ; 0/10/20
 Aux_screen_vertical_offset: db 0 ; 0/128
 CurrentCity: db 0 ; rango [1,30]
