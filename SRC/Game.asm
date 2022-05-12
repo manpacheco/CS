@@ -316,8 +316,18 @@ call Pinta_recuadro
 LD DE, Menu							; Carga en el registro DE la dirección de la cadena del menú superior
 CALL Print_255_Terminated			; Pinta el menú superior
 
-
 ld c, 3 ; se compara primero con 1
+CALL Pinta_ciudad_origen
+CALL Pinta_ciudades_destino
+RET
+
+;########################################################################################################
+;############################      Pinta_ciudad_origen       #########################################
+;########## Parámetros: C		   														#############
+;########## Usa: AF, BC, DE, HL																#############
+;########################################################################################################
+;########################################################################################################
+Pinta_ciudad_origen:
 push hl
 ld hl, Cursor
 ld a, (hl)
@@ -342,10 +352,6 @@ CALL Select_elemento
 LD B,1
 LD C,13
 CALL Print_255_Terminated_with_line_wrap
-
-;;;; 12/05 HAY QUE METER PINTA_CIUDAD_ORIGEN en una función para que se pueda llamar desde otros sitios
-
-CALL Pinta_ciudades_destino
 RET
 
 ;########################################################################################################

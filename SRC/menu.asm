@@ -19,6 +19,7 @@ CALL PintaCursor
 pinta_menu_continuar_2:
 CP 2
 JR NZ, pinta_menu_continuar_3
+CALL Pinta_ciudad_origen
 CALL Pinta_ciudades_destino
 pinta_menu_continuar_3:
 RET
