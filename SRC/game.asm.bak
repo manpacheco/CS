@@ -298,7 +298,7 @@ Depart:
 LD HL, Cursor
 LD (HL), 1	; Valor por defecto = 3
 ld hl, Cursor_max
-ld (hl), 4
+ld (hl), 5
 ld hl, Current_menu
 ld (hl),2
 CALL World_map
