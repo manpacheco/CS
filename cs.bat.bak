@@ -1,4 +1,4 @@
-@echo off
+rem @echo off
 cd "C:\Users\Manuel\Desktop\Proyecto CS\CSand"
 del cs.tap /Q
 cd src

@@ -102,13 +102,19 @@ call Pinta_menu
 ; ###################     FIRE       #######################
 ; ##########################################################
 ScanFire:
-ld bc, ROW_BNM_SymbolShift_Space
-in a, (c)
-rra
-jr c, NothingPressed
+LD BC, ROW_BNM_SymbolShift_Space
+IN A, (C)
+RRA
+JR C, NothingPressed
 
-;call Pinta_impresora
-;call Pinta_mensaje_impresora
+;LD HL, (Current_menu)
+LD HL, Current_menu
+LD A, (HL)
+deinteres:
+CP Menu_principal
+JR NZ, No_es_menu_principal
+;; SI MENU ES MENU PRINCIPAL
+
 
 LD HL, Cursor
 LD A,(HL)
@@ -119,6 +125,16 @@ CALL Z, Enquire
 CP 1
 CALL Z, Depart
 JR ScanFinally
+
+No_es_menu_principal:
+CP Menu_departures
+JR NZ, ScanFinally ;; SI MENU NO ES MENU DE VUELOS -> SALTA A SIGUIENTE ( O FINAL)
+;; SI MENU ES MENU DE VUELOS
+;; SI LA CIUDAD ES LA MISMA -> NO SE CAMBIA DE CIUDAD
+;; SI LA CIUDAD ES DISTINTA -> SE CAMBIA DE CIUDAD -> (opcional) sonido -> (opcional) trayecto en mapa
+
+
+CALL Refresh_city
 
 NothingPressed:
 

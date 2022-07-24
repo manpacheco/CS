@@ -58,7 +58,7 @@ Current_rank: db 0 ; [0-4]
 CurrentCountry: db 28
 CurrentWeekday: db 3 ; EMPIEZA EN 1
 CurrentHour: db "0900",255
-Current_menu: db 1
+Current_menu: db Menu_principal
 ;Estado actual
 Seed_for_random dw 0
 Suspect: db 99

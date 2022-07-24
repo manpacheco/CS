@@ -341,6 +341,33 @@ DJNZ Dibuja_Linea_loop
 RET
 
 ;#####################################################################################################
+;#####				Print_linea_blanco
+;#####################################################################################################
+Print_linea_blanco:
+PUSH BC
+PUSH AF
+PUSH DE
+LD A, AT
+RST 0x10												; Otherwise print the character
+
+LD A, 2
+RST 0x10												; Otherwise print the character
+
+LD A, 0
+RST 0x10												; Otherwise print the character
+
+LD B, 32												; Get the character
+Bucle_Print_linea_blanco:
+LD A, 32	
+RST 0x10												; Otherwise print the character
+DJNZ Bucle_Print_linea_blanco
+POP DE
+POP AF
+POP BC
+RET
+
+
+;#####################################################################################################
 ;#####				Print_255_Terminated
 ;#####		parámetro: en el registro DE viene la dirección de la cadena que se va a escribir 
 ;#####		usa: AF, DE *[se hace llamada a ROM]

@@ -48,7 +48,7 @@ RandomEscapeRoute:
 PUSH HL										; PRESERVA EL REGISTRO HL EN LA PILA
 CALL limpia_buffer_vram
 CALL Random									; Se aleatoriza el valor del registro A
-ld a, 10 ; TEST TEST TEST
+ld a, 9 ; TEST TEST TEST
 AND 31										; Se recorta a 31 como máximo
 OR A										; Se compara con 0
 JR Z, SpecialBranchRandomEscapeRoute		; Si es 0 salta a rama especial
@@ -162,8 +162,12 @@ RET
 ;########################################################################################################
 Refresh_city:
 CALL Restablecer_valores_por_defecto_recuadros
+CALL Print_linea_blanco
 CALL Pinta_pantalla_juego
 CALL Pinta_imagen_ciudad
+
+
+CALL Dibuja_Linea
 
 LD B, 13
 LD C, 3
