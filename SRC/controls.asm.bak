@@ -136,15 +136,21 @@ JR NZ, ScanFinally ;; SI MENU NO ES MENU DE VUELOS -> SALTA A SIGUIENTE ( O FINA
 CALL Refresh_city
 
 push BC
-ld c, CIUDAD_INICIAL
-cp c
-jr NZ, Ciudad_distinta
-;; SI LA CIUDAD ES LA MISMA -> NO SE CAMBIA DE CIUDAD y se vuelve a menu principal
 push hl
+LD HL, Cursor
+LD A,(HL)
+LD C, CIUDAD_INICIAL
+CP C
+JR NZ, Ciudad_distinta
+;; SI LA CIUDAD ES LA MISMA -> NO SE CAMBIA DE CIUDAD y se vuelve a menu principal
+
 LD HL, Current_menu
 LD (HL), Menu_principal
-pop hl
+LD HL, Cursor_max
+LD (HL), 5
+
 Ciudad_distinta:
+pop hl
 pop BC
 
 

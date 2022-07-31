@@ -139,13 +139,15 @@ push BC
 push hl
 LD HL, Cursor
 LD A,(HL)
-ld c, CIUDAD_INICIAL
-cp c
-jr NZ, Ciudad_distinta
+LD C, CIUDAD_INICIAL
+CP C
+JR NZ, Ciudad_distinta
 ;; SI LA CIUDAD ES LA MISMA -> NO SE CAMBIA DE CIUDAD y se vuelve a menu principal
 
 LD HL, Current_menu
 LD (HL), Menu_principal
+LD HL, Cursor_max
+LD (HL), 3
 
 Ciudad_distinta:
 pop hl

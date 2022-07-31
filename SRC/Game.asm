@@ -5,6 +5,7 @@ ANCHURA_PANTALLA_COLUMNAS 	EQU 32
 PAPEL_BLANCO_TINTA_BLANCA 	EQU 63
 CURSOR_POR_DEFECTO			EQU 2
 CIUDAD_INICIAL				EQU 1
+ULTIMO_BYTE_ZONA_ATTR		EQU 23296
 
 ;########################################################################################################
 ;#####                             Random        
@@ -164,11 +165,28 @@ RET
 ;########################################################################################################
 Refresh_city:
 CALL Restablecer_valores_por_defecto_recuadros
+call Print_black
 CALL Print_linea_blanco
-;;; 25/07 -> 26/07
-;;; AL SELECCIONAR NO VOLAR- REVISAR COLOR ANTES DE PRINT LINEA BLANCO
-;;; AL SELECCIONAR NO VOLAR- REPASAR FONDO JUNTO BOTONES DE MENU PRINCIPAL
-;;; AL SELECCIONAR NO VOLAR- REVISAR QUE EL MENU VUELVA A SER EL MENU PRINCIPAL Y NO EL MENU DE VOLAR
+LD A, AT
+RST 0x10
+LD A, 19
+RST 0x10
+LD A, 0
+RST 0x10
+
+LD HL, ULTIMO_BYTE_ZONA_ATTR
+LD B, 160 ;; 32 * 5
+blancos:
+DEC HL
+LD (HL), 63
+DJNZ blancos
+CALL Print_black
+
+;;; 31/07 -> 01/08
+; DEJAR PLACEHOLDER PARA POSIBLE EFECTO TRÁNSITO AVIÓN + SONIDO
+; EN CASO DE SELECCIONAR OTRA CIUDAD, ESTABLECER ESA CIUDAD COMO CIUDAD ACTUAL Y VOLVER A MENU PRINCIPAL
+
+
 
 CALL Pinta_pantalla_juego
 CALL Pinta_imagen_ciudad
