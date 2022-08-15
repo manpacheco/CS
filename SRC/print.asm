@@ -39,6 +39,18 @@ ESQUINA_INFERIOR_DER		EQU 151
 PRINTER_BASE_X				EQU 15
 PRINTER_BASE_Y				EQU 15
 TAM_WEEKDAYS				EQU 4
+CARACTER_ASCII_0			EQU 48
+CARACTER_ASCII_1			EQU 49
+CARACTER_ASCII_2			EQU 50
+CARACTER_ASCII_3			EQU 51
+CARACTER_ASCII_4			EQU 52
+CARACTER_ASCII_5			EQU 53
+CARACTER_ASCII_6			EQU 54
+CARACTER_ASCII_7			EQU 55
+CARACTER_ASCII_8			EQU 56
+CARACTER_ASCII_9			EQU 57
+CARACTER_ASCII_9_M_1		EQU 58
+
 Menu:						DB AT, 1, 0, PAPER, 7, INK, 2, " G", INK, 0, "ame  ", INK, 2, "O", INK, 0, "ptions  ", INK, 2, "A", INK, 0, "cme  ", INK, 2, "D", INK, 0, "ossiers ",255
 City_origin:				DB AT, 4, 2, 255
 City_destination1:			DB AT, 3, 15, 255
@@ -556,6 +568,72 @@ LD DE, CurrentHour
 CALL Print_255_Terminated
 RET
 
+;#####################################################################################################
+;#####				Incrementa_hora_actual
+;#####################################################################################################
+;#####	   Añade una hora a la hora actual e incrementa el día si hace falta
+;#####################################################################################################
+Incrementa_hora_actual:
+LD HL, CurrentHour					; Carga en HL la dirección de la hora
+INC HL								; Incrementa en 1 para apuntar al dígito menos significativo de la hora
+LD A, (HL)							; Carga el dígito menos significativo de la hora en A
+INC A								; Incrementa en 1
+
+CP CARACTER_ASCII_4					; Compara con el caracter ascii "4" para saber si puede ser una vuelta completa
+JR Z, Puede_ser_vuelta_completa
+
+CP CARACTER_ASCII_9_M_1				; Compara con el caracter ascii "4" para saber si puede ser una vuelta completa
+
+JR NZ, guarda_hora_y_vuelve
+
+; Si pasa por aquí es que simplemente hace falta pasar de [X][10] a [X+1][0]
+LD (HL),CARACTER_ASCII_0
+LD HL, CurrentHour
+LD A, (HL)
+INC A
+JR guarda_hora_y_vuelve
+
+Puede_ser_vuelta_completa:
+LD HL, CurrentHour					; Carga en HL la dirección de la hora
+LD A, (HL)							; Carga el dígito más significativo de la hora en A
+CP CARACTER_ASCII_2					; Compara con el caracter ascii "2" para saber si puede ser una vuelta completa
+JR NZ, guarda_vuelta_no_completa
+
+; VUELTA_COMPLETA
+LD (HL),CARACTER_ASCII_0
+INC HL
+LD (HL),CARACTER_ASCII_0
+CALL Incrementa_dia_actual
+RET
+
+guarda_vuelta_no_completa:
+inc hl
+LD A, (HL)
+INC A
+
+guarda_hora_y_vuelve:
+halt
+halt
+halt
+halt
+halt
+halt
+LD (HL),A
+RET
+
+;#####				FIN Incrementa_hora_actual
+
+
+;#####################################################################################################
+;#####				Incrementa_dia_actual
+;#####				
+;#####################################################################################################
+Incrementa_dia_actual:
+LD HL, CurrentWeekday
+LD A, (HL)
+INC A
+LD (HL), A
+RET
 
 ;#####################################################################################################
 ;#####				Pinta_todos_recuadros

@@ -47,7 +47,7 @@ ld hl, Window_x_inicial
 ld (hl),Button_lupa_x_inicial
 ld hl, Window_x_final_m_1
 ld (hl),Button_lupa_x_final
-call Pinta_recuadro
+CALL Pinta_recuadro
 
 LD DE, Button_lupa_1_3
 CALL Print_255_Terminated

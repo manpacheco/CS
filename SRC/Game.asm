@@ -341,7 +341,7 @@ ld hl, Window_x_final_m_1
 LD (HL), 31
 ld hl, Caracter_relleno								; Carga en HL la dirección del caracter de relleno
 ld (hl), CARACTER_TODO_RELLENO						; Carga en la dirección del caracter de relleno el caracter todo relleno
-call Pinta_recuadro
+CALL Pinta_recuadro
 LD DE, Menu							; Carga en el registro DE la dirección de la cadena del menú superior
 CALL Print_255_Terminated			; Pinta el menú superior
 

@@ -17,6 +17,31 @@ IN A,(C) 					; a la instrucción IN solo se le pasa la parte explicitamente el 
 RRA 						; nos quedamos con el valor del bit más bajo
 JR C, ScanDown 				; si hay carry significa que la tecla no estaba pulsada
 
+;;; EMPIEZA DEBUG
+CALL Incrementa_hora_actual
+
+CALL Restablecer_valores_por_defecto_recuadros
+;ld hl, Caracter_relleno								; Carga en HL la dirección del caracter de relleno
+;ld (hl), CARACTER_TODO_RELLENO						; Carga en la dirección del caracter de relleno el caracter todo relleno
+CALL Pinta_recuadro
+CALL Print_weekday_and_hour
+ld a, AT
+RST 0x10
+ld a, 4
+RST 0x10
+ld a, 1
+RST 0x10
+;LD DE, City_print_config
+CALL Print_city_text
+
+CALL Incrementa_hora_actual
+halt
+halt
+halt
+halt
+CALL Print_weekday_and_hour
+
+;;; FIN DEBUG
 
 ;;; call Restablecer_valores_por_defecto_recuadros
 ;;; LD HL, CurrentCity
@@ -114,7 +139,6 @@ CP Menu_principal
 JR NZ, No_es_menu_principal
 ;; SI MENU ES MENU PRINCIPAL
 
-
 LD HL, Cursor
 LD A,(HL)
 CP 3
@@ -133,26 +157,28 @@ JR NZ, ScanFinally ;; SI MENU NO ES MENU DE VUELOS -> SALTA A SIGUIENTE ( O FINA
 ;; SI LA CIUDAD ES DISTINTA -> SE CAMBIA DE CIUDAD -> (opcional) sonido -> (opcional) trayecto en mapa
 
 
-CALL Refresh_city
+; CALL Refresh_city
 
-push BC
-push hl
+PUSH BC
+PUSH HL
 LD HL, Cursor
 LD A,(HL)
 LD C, CIUDAD_INICIAL
 CP C
-JR NZ, Ciudad_distinta
-;; SI LA CIUDAD ES LA MISMA -> NO SE CAMBIA DE CIUDAD y se vuelve a menu principal
+JR Z, Despues_de_cambio_de_ciudad
+;; SI LA CIUDAD ES LA MISMA -> NO SE CAMBIA DE CIUDAD y salta a Despues_de_cambio_de_ciudad
+;; SI LA CIUDAD ES DIFERENTE -> SE HACE RUIDO, SE HACE EFECTO VUELO
+call Noise
+call Cambia_ciudad_seleccionada_por_cursor_en_menu_departs
 
+Despues_de_cambio_de_ciudad:
+CALL Refresh_city
 LD HL, Current_menu
 LD (HL), Menu_principal
 LD HL, Cursor_max
 LD (HL), 3
-
-Ciudad_distinta:
-pop hl
-pop BC
-
+POP HL
+POP BC
 
 NothingPressed:
 
@@ -176,3 +202,34 @@ ld a,(hl)           			; new value of LAST K.
 cp 0                			; is it still zero?
 jr z,PressAnyKeyLoop			; yes, so no key pressed.
 RET                 			; key was pressed.
+
+
+
+
+Cambia_ciudad_seleccionada_por_cursor_en_menu_departs:
+
+LD HL, CurrentCity
+LD A, (HL)									
+CALL set_HL_with_value_to_add_to_connections_pointer_for_city_in_A_position
+LD DE, Connections
+ADD HL, DE
+
+LD IX, Cursor
+LD E, (IX)
+DEC E
+DEC E
+LD D, 0
+
+ADD HL, DE
+
+LD A, (HL)
+
+LD HL, CurrentCity
+LD (HL), A
+
+
+
+
+;;;;; SEGUIR POR AQUÍ --- restar offset a cursor y añadir a indice
+
+ret

@@ -86,5 +86,3 @@ jr noise2
 ;;;;;;; ld hl, C_3
 ;;;;;;; ld de, C_3_FQ
 ;;;;;;; jr beep
-
-
