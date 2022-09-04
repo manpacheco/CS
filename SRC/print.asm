@@ -617,9 +617,21 @@ halt
 halt
 halt
 halt
-halt
 LD (HL),A
+CP CARACTER_ASCII_8
+RET NZ
+DEC HL
+LD A, (HL)
+CP CARACTER_ASCII_1
+RET NZ
+LD HL, CurrentWeekday
+LD A, (HL)
+CP 7
+RET NZ
+CALL Nuevo_escondite
 RET
+
+
 
 ;#####				FIN Incrementa_hora_actual
 

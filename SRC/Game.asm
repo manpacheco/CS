@@ -386,6 +386,47 @@ CALL Print_white
 RET
 
 ;########################################################################################################
+;############################      Nuevo_escondite       #########################################
+;########## Parámetros: 		   														#############
+;########## Usa: 															#############
+;########################################################################################################
+;########################################################################################################
+Nuevo_escondite:
+LD A,6 								; carga el color del borde
+OUT (254),A							; establecer el color del borde
+halt
+halt
+halt
+halt
+halt
+halt
+LD A,3 								; carga el color del borde
+OUT (254),A							; establecer el color del borde
+halt
+halt
+halt
+halt
+halt
+halt
+LD A,6 								; carga el color del borde
+OUT (254),A							; establecer el color del borde
+halt
+halt
+halt
+halt
+halt
+halt
+LD A,3 								; carga el color del borde
+OUT (254),A							; establecer el color del borde
+halt
+halt
+halt
+halt
+halt
+halt
+RET
+
+;########################################################################################################
 ;############################      Pinta_ciudades_destino       #########################################
 ;########## Parámetros: 		   														#############
 ;########## Usa: AF, DE, HL																#############
