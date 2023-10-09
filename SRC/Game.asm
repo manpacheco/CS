@@ -208,7 +208,16 @@ RET
 ;################################### Inicia_caso ####################################################
 ;########################################################################################################
 Inicia_caso:
+;;; DEBUG
+call Pinta_todos_recuadros
+;;; FIN DEBUG
 
+ld hl,CurrentWeekday
+ld (hl), 1
+ld hl,CurrentHour
+ld (hl), CARACTER_ASCII_0
+inc hl
+ld (hl), CARACTER_ASCII_9
 CALL Pinta_rango
 CALL PressAnyKey
 EX AF,AF'

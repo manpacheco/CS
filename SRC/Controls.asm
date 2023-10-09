@@ -24,6 +24,7 @@ CALL Restablecer_valores_por_defecto_recuadros
 ;ld hl, Caracter_relleno								; Carga en HL la dirección del caracter de relleno
 ;ld (hl), CARACTER_TODO_RELLENO						; Carga en la dirección del caracter de relleno el caracter todo relleno
 CALL Pinta_recuadro
+CALL Dibuja_Linea
 CALL Print_weekday_and_hour
 ld a, AT
 RST 0x10
@@ -41,18 +42,6 @@ halt
 halt
 CALL Print_weekday_and_hour
 
-;;; FIN DEBUG
-
-;;; call Restablecer_valores_por_defecto_recuadros
-;;; LD HL, CurrentCity
-;;; LD A, (HL)
-;;; INC A
-;;; LD (HL), A
-;;; 
-;;; call Restablecer_valores_por_defecto_recuadros
-;;; CALL Pinta_pantalla_juego
-;;; CALL Pinta_imagen_ciudad
-
 ;;;; CALL FUNCION SUBIR
 ; jr ScanFinally
 
@@ -64,6 +53,8 @@ ld bc, ROW_GFDSA			; en BC se carga la dirección completa donde está la fila d
 in a,(c)					; a la instrucción IN solo se le pasa la parte explicitamente el registro C porque la parte que está en el registro B ya está implícita
 rra							; nos quedamos con el valor del bit más bajo
 jr c, ScanRight				; si hay carry significa que la tecla no estaba pulsada
+;;call Pinta_pantalla_juego
+CALL Inicia_caso
 ;;;; CALL FUNCION BAJAR
 ;call Hacer_scroll_papel_impresora
 ;;;; ; ; ; call Restablecer_valores_por_defecto_recuadros

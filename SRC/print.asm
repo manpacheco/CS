@@ -628,7 +628,8 @@ LD HL, CurrentWeekday
 LD A, (HL)
 CP 7
 RET NZ
-CALL Nuevo_escondite
+; CALL Nuevo_escondite
+CALL Inicia_caso
 RET
 
 

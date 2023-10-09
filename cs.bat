@@ -1,13 +1,13 @@
 @echo off
-cd "C:\Users\Manuel\Desktop\Proyecto CS\CSand"
+cd "c:\Users\Manuel\Desktop\Proyecto CS\CSand"
 del cs.tap /Q
 cd src
 del public.txt /Q
-pasmo --name cs --tapbas Main.asm ..\cs.tap --public
+"C:\Prog_SSD\Pasmo_054b2\pasmo.exe" --name cs --tapbas Main.asm ..\cs.tap --public
 echo Renombrando
 REN --public public.txt
 cd ..
-rem "C:\Mis programas\Spectaculator\Spectaculator.exe" cs.tap
-"C:\Manuel\Spectrum\spin\zxspin.exe" "C:\Users\Manuel\Desktop\Pr8bcd~1\CSand\cs.tap"
+rem "f:\Mis programas\Spectaculator\Spectaculator.exe" cs.tap
+"f:\Manuel\Spectrum\spin\zxspin.exe" "c:\Users\Manuel\Desktop\Proyec~1\CSand\cs.tap"
 
 

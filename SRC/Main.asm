@@ -11,11 +11,12 @@ LD A,6 								; carga el color del borde
 OUT (254),A							; establecer el color del borde
 
 LD HL, Carton_bold_font-256
-LD IX, 23606
+LD IX, 23606						; dirección de la fuente (parte baja)
 LD (IX), L
-LD IX, 23607
+LD IX, 23607						; dirección de la fuente (parte alta)
 LD (IX), H
 
+Inicializacion:
 CALL ROM_CLS            			; Clear screen and open Channel 2 (Screen)
 CALL Pinta_pantalla_juego
 CALL Pinta_imagen_ciudad
